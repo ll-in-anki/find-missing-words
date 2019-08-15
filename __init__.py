@@ -1,5 +1,3 @@
-import sys
-
 from . import ui
 
-s = ui.UI()
+session = ui.UI()
