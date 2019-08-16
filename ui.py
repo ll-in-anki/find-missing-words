@@ -4,11 +4,12 @@ from aqt import mw
 # import all of the Qt GUI library
 from aqt.qt import *
 
+from .views import tabs
+
 
 class UI(QWidget):
     def __init__(self):
         super().__init__()
-
         self.parent = mw
         self.setupMenu()
 
@@ -22,22 +23,26 @@ class UI(QWidget):
 
     def showUI(self):
         mainLayout = QVBoxLayout()
-        self.layout = mainLayout
-        self.setLayout(mainLayout)
+
+        # Layout tabs
+        self.tabs = tabs.Tabs()
+        mainLayout.addWidget(self.tabs)
 
         # Add an horizontal line
         mainLayout.addWidget(self.hLine())
 
-        # Bottom buttons
-        cancelButton = QPushButton("Cancel")
-        cancelButton.clicked.connect(self.close)
+        # Bottom button(s)
+        closeButton = QPushButton("Done")
+        closeButton.clicked.connect(self.close)
         btnLayout = QHBoxLayout()
         btnLayout.addStretch(1)
-        btnLayout.addWidget(cancelButton)
-        self.layout.addLayout(btnLayout)
+        btnLayout.addWidget(closeButton)
+        mainLayout.addLayout(btnLayout)
 
         # Center the window
         self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
+
+        self.setLayout(mainLayout)
         self.setWindowTitle("LL")
         self.show()
         self.raise_()
