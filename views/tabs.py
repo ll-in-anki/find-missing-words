@@ -9,8 +9,8 @@ class Tabs(QTabWidget):
         self.render()
 
     def render(self):
-        self.tab1 = QWidget()
-        self.addTab(self.tab1, "Find Missing Words")
+        self.tab_1 = QWidget()
+        self.addTab(self.tab_1, "Find Missing Words")
         self.setTabText(0, "Find Missing Words")
         find_missing_layout = find_missing.FindMissingWords()
-        self.tab1.setLayout(find_missing_layout)
+        self.tab_1.setLayout(find_missing_layout)
