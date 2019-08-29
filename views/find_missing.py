@@ -5,7 +5,7 @@ from aqt.qt import *
 import aqt.deckchooser
 import aqt.modelchooser
 
-from . import field_chooser
+from . import field_chooser, multi_chooser
 
 
 class FindMissingWords(QVBoxLayout):
@@ -20,6 +20,9 @@ class FindMissingWords(QVBoxLayout):
         self.deck_chooser = self.render_filter("Filter deck?", self.deck_selection_enabled, self.toggle_deck_selection, aqt.deckchooser.DeckChooser)
         self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
         self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
+        current_model = mw.col.models.current()
+        field_names = [field["name"] for field in current_model["flds"]]
+        multi_chooser.MultiChooser(field_names, "Fields")
         self.render_text_area()
         self.render_search_button()
 
