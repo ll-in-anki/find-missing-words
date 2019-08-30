@@ -2,10 +2,11 @@ from aqt.qt import *
 
 
 class MultiChooser(QDialog):
-    def __init__(self, list_items, window_title):
+    def __init__(self, list_items, window_title="Chooser", grouped=False):
         super().__init__()
         self.list_items = list_items
-        self.setWindowTitle("HELLO!")
+        self.setWindowTitle(window_title)
+        self.grouped = grouped
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.render()
@@ -13,7 +14,10 @@ class MultiChooser(QDialog):
 
     def render(self):
         self.render_filter()
-        self.render_list()
+        if self.grouped:
+            self.render_tree()
+        else:
+            self.render_list()
         self.render_buttons()
 
     def render_filter(self):
@@ -31,8 +35,22 @@ class MultiChooser(QDialog):
         self.list.addItems(self.list_items)
         self.layout.addWidget(self.list)
 
+    def render_tree(self):
+        self.tree = QTreeWidget()
+        self.tree.setColumnCount(1)
+        root_items = []
+        for root_item in self.list_items:
+            child_items = []
+            for child_item in self.list_items[root_item]:
+                child_items.append(QTreeWidgetItem(root_item, [child_item]))
+            root_items.append(QTreeWidgetItem(self.tree, [root_item]))
+        self.tree.insertTopLevelItems(None, root_items)
+
+        self.layout.addWidget(self.tree)
+
+
     def get_list_items(self):
-        return self.list.selectedItems()
+        return [str(item.text()) for item in self.list.selectedItems()]
 
     def redraw(self):
         self.list.clear()
@@ -51,3 +69,8 @@ class MultiChooser(QDialog):
         self.btn_layout = QVBoxLayout()
         self.btn_layout.addWidget(self.button_box)
         self.layout.addLayout(self.btn_layout)
+
+    def accept(self):
+        self.selected_items = self.get_list_items()
+        super().accept()
+

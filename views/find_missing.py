@@ -21,8 +21,15 @@ class FindMissingWords(QVBoxLayout):
         self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
         self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
         current_model = mw.col.models.current()
-        field_names = [field["name"] for field in current_model["flds"]]
-        multi_chooser.MultiChooser(field_names, "Fields")
+        models = mw.col.models.all()
+        model_tree = {}
+        for model in models:
+            model_fields = [field["name"] for field in model["flds"]]
+            model_tree[model["name"]] = model_fields
+        # field_names = [field["name"] for field in current_model["flds"]]
+        field_chooser_widget = multi_chooser.MultiChooser(model_tree, "Fields", True)
+        if field_chooser_widget.selected_items:
+            print(field_chooser_widget.selected_items)
         self.render_text_area()
         self.render_search_button()
 
