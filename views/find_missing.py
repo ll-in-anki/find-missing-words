@@ -4,6 +4,8 @@ from aqt import mw
 from aqt.qt import *
 import aqt.deckchooser
 import aqt.modelchooser
+# import os
+from anki.hooks import addHook, remHook
 
 from . import field_chooser
 
@@ -11,11 +13,21 @@ from . import field_chooser
 class FindMissingWords(QVBoxLayout):
     def __init__(self):
         super().__init__()
+
         self.deck_selection_enabled = True
         self.model_selection_enabled = False
         self.field_selection_enabled = False
-        self.initQuery = ""
-        self.render()        
+
+        addHook('currentModelChanged', self.update_init_search)
+
+        self.render()
+        self.update_init_search()
+
+    def cleanup(self):
+        remHook('currentModelChanged', self.update_init_search)
+
+####### UI
+
 
     def render(self):
         print("Render")
@@ -27,8 +39,7 @@ class FindMissingWords(QVBoxLayout):
         self.render_text_area()
         self.render_search_button()
         self.render_results_area()
-
-        self.update_init_search()
+        
 
     def render_filter(self, checkbox_label, state, on_state_change, chooser_class):
         checkbox = QCheckBox(checkbox_label)
@@ -77,55 +88,64 @@ class FindMissingWords(QVBoxLayout):
         self.addLayout(btn_layout)
 
     def render_search_preview(self):
-        self.search_preview = QLabel()
-        #self.search_preview.setReadOnly(True)
-        self.search_preview.setText("Search: " + self.initQuery + "[Word]")
-        self.search_preview.setFixedHeight(25)
-        self.addWidget(self.search_preview)
+        search_preview_layout = QHBoxLayout()
+        search_text = QLabel()
+        search_text.setText("Search:")
+        search_preview_layout.addWidget(search_text)
+        
+        self.search_preview = QTextEdit()
+        self.search_preview.setReadOnly(True)
+        self.search_preview.setFixedHeight(40)
+        search_preview_layout.addWidget(self.search_preview)
+
+        # self.copy_preview_button = QPushButton("Copy")
+        # self.copy_preview_button.clicked.connect(self.copy_preview)
+        # search_preview_layout.addWidget(self.copy_preview_button)
+
+        self.addLayout(search_preview_layout)
 
     def render_results_area(self):
         self.results_area = QListWidget()
         self.addWidget(self.results_area)
 
 
+
+####### Non-UI
+
+
+
+    # def copy_preview(self):
+    #     data = self.get_final_search("[Word]")
+    #     command = 'echo ' + data.strip() + '| clip'
+    #     os.system(command)
     
     def update_init_search(self):
-        print("Update Init Search")
+        # print("Update Init Search")
         # deck_id = self.deck_selection_enabled and self.deck_chooser.selectedId()
         deck_name = self.deck_selection_enabled and self.deck_chooser.deckName()
         model_name = self.model_selection_enabled and mw.col.models.current()['name']
+        self.field_name = self.field_selection_enabled and self.field_chooser.current_field_name
 
         self.initQuery = ""
         self.initQuery += self.search_formatter(True, "deck", deck_name) if deck_name else ""
         self.initQuery += self.search_formatter(True, "note", model_name) if model_name else ""
 
-        self.search_preview.update()
+        self.search_preview.setText(self.get_final_search("[Word]"))
 
 
 
     def search(self):
         # Search through fetched cards here
-        # print("Searching")
         
         self.results_area.clear()
-
         
-        field_name = self.field_selection_enabled and self.field_chooser.current_field_name
-
-
-        # initQuery = ""
-        # initQuery += self.search_formatter(True, "deck", deck_name) if deck_name else ""
-        # initQuery += self.search_formatter(True, "note", model_name) if model_name else ""
+        self.update_init_search()
 
         # Convert to set to get unique entries, after splitting text box by white space
         words = set(self.text_area_text.toPlainText().split())
 
         for word in words:
-            query = self.initQuery + self.search_formatter(
-                False, 
-                field_name if field_name else False, 
-                word
-            )
+            query = self.get_final_search(word)
         
             results = mw.col.findCards(query)
             hasResults = len(results) > 0
@@ -156,9 +176,12 @@ class FindMissingWords(QVBoxLayout):
         return search
 
 
+    def get_final_search(self, word):
+        return self.initQuery + self.search_formatter(True, self.field_name if self.field_name else False, word)
+
 
     def create_result_item(self, word):
-        print("Create Result Item: " + str(word))
+        # print("Create Result Item: " + str(word))
         item = QListWidgetItem()
 
         item.setText(str(word))
