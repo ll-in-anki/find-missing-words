@@ -5,7 +5,7 @@ from aqt.qt import *
 import aqt.deckchooser
 import aqt.modelchooser
 # import os
-from anki.hooks import addHook, remHook
+from anki.hooks import addHook, remHook, runHook
 
 from . import field_chooser
 
@@ -14,6 +14,7 @@ class FindMissingWords(QVBoxLayout):
     def __init__(self):
         super().__init__()
 
+        self.results = []
         self.deck_selection_enabled = True
         self.model_selection_enabled = False
         self.field_selection_enabled = False
@@ -30,7 +31,7 @@ class FindMissingWords(QVBoxLayout):
 
 
     def render(self):
-        print("Render")
+        #print("Render")
         self.deck_chooser = self.render_filter("Filter deck?", self.deck_selection_enabled, self.toggle_deck_selection, aqt.deckchooser.DeckChooser)
         self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
         self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
@@ -138,6 +139,7 @@ class FindMissingWords(QVBoxLayout):
         # Search through fetched cards here
         
         self.results_area.clear()
+        self.results.clear()
         
         self.update_init_search()
 
@@ -152,9 +154,11 @@ class FindMissingWords(QVBoxLayout):
             print(query + ": " + str(hasResults))
 
             if not hasResults:
+                self.results.append(word)
                 self.results_area.addItem(self.create_result_item(word))
                 
-
+        print(self.results)
+        runHook('newMissingCardsResults', self.results)
 
 
     def search_formatter(self, encapsulated, field, term):
