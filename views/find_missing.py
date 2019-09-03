@@ -14,24 +14,69 @@ class FindMissingWords(QVBoxLayout):
         self.deck_selection_enabled = True
         self.model_selection_enabled = False
         self.field_selection_enabled = False
+        self.model_field_items = []
+        self.selected_decks = []
         self.render()
 
     def render(self):
-        self.deck_chooser = self.render_filter("Filter deck?", self.deck_selection_enabled, self.toggle_deck_selection, aqt.deckchooser.DeckChooser)
-        self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
-        self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
-        current_model = mw.col.models.current()
-        models = mw.col.models.all()
-        model_field_items = []
-        for model in models:
-            model_fields = [field["name"] for field in model["flds"]]
-            for field in model_fields:
-                model_field_items.append([field, model["name"]])
-        field_chooser_widget = multi_chooser.MultiChooser(model_field_items, "Fields", ["Field", "Note Type"])
-        if field_chooser_widget.selected_items:
-            print(field_chooser_widget.selected_items)
+        # self.deck_chooser = self.render_filter("Filter deck?", self.deck_selection_enabled, self.toggle_deck_selection, aqt.deckchooser.DeckChooser)
+        # self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
+        # self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
+        # current_model = mw.col.models.current()
+        # self.render_deck_chooser()
+        self.render_model_field_tree()
         self.render_text_area()
         self.render_search_button()
+
+    def render_deck_chooser(self):
+        open_chooser_btn = QPushButton("Deck")
+        open_chooser_btn.clicked.connect(self.open_deck_chooser)
+        self.addWidget(open_chooser_btn)
+
+    def open_deck_chooser(self):
+        decks = mw.col.decks.all()
+        deck_chooser_data = [[deck["name"]] for deck in decks]
+        deck_chooser_widget = multi_chooser.ModelFieldTree(mw, deck_chooser_data, ["Deck"], "Decks")
+        # from aqt.qt import debug; debug()
+        if deck_chooser_widget.selected_items:
+            self.selected_decks = deck_chooser_widget.selected_items
+            print([deck.data(1,0) for deck in self.selected_decks])
+
+    def render_model_chooser(self):
+        open_chooser_btn = QPushButton("Model")
+        open_chooser_btn.clicked.connect(self.open_model_chooser)
+        self.addWidget(open_chooser_btn)
+
+    def open_model_chooser(self):
+        models = mw.col.models.all()
+        model_chooser_data = [[model["name"]] for model in models]
+        model_chooser_widget = multi_chooser.ModelFieldTree(mw, model_chooser_data, "Note Types")
+        if model_chooser_widget.selected_items:
+            self.selected_models = [model.data(1,0) for model in model_chooser_widget.selected_items]
+            print(self.selected_models)
+
+    def render_field_chooser(self):
+        open_chooser_btn = QPushButton("Field")
+        open_chooser_btn.clicked.connect(self.open_field_chooser)
+        self.addWidget(open_chooser_btn)
+
+    def generate_model_field_data(self):
+        all_models = mw.col.models.all()
+        self.model_field_items = []
+        for model in all_models:
+            model_dict = {"name": model["name"], "state": 2}
+            model_fields = []
+            for field in model["flds"]:
+                field_dict = {"name": field["name"], "state": 2}
+                model_fields.append(field_dict)
+            model_dict["fields"] = model_fields
+            self.model_field_items.append(model_dict)
+
+    def render_model_field_tree(self):
+        if not self.model_field_items:
+            self.generate_model_field_data()
+
+        field_chooser_widget = multi_chooser.ModelFieldTree(mw, self.model_field_items, "Models/Fields")
 
     def render_filter(self, checkbox_label, state, on_state_change, chooser_class):
         checkbox = QCheckBox(checkbox_label)

@@ -1,0 +1,16 @@
+[
+    {
+        name: "Basic",
+        state: 0,
+        fields: [
+            {
+                name: "Front",
+                state: 0
+            },{
+                name: "Back",
+                state: 0
+            }
+        ]
+    }
+]
+

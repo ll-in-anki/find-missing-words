@@ -1,13 +1,13 @@
 from aqt.qt import *
 
 
-class MultiChooser(QDialog):
-    def __init__(self, items, window_title="Chooser", column_labels=["Column 1", "Column 2"]):
+class ModelFieldTree(QDialog):
+    def __init__(self, mw, model_fields, window_title="Chooser"):
         super().__init__()
-        self.items = items
+        self.mw = mw
+        self.model_fields = model_fields
         self.selected_items = []
         self.setWindowTitle(window_title)
-        self.column_labels = column_labels
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.render()
@@ -60,23 +60,25 @@ class MultiChooser(QDialog):
         tree_items = []
         for item in self.items:
             tree_item = QTreeWidgetItem([""] + item)
+            tree_item.setData(1, 0, item)
             tree_items.append(tree_item)
         return tree_items
 
     def render_tree(self):
         self.tree = QTreeWidget()
-        self.tree.setHeaderLabels([""] + self.column_labels)
-        self.tree.setSortingEnabled(True)
-        for i, item in enumerate(self.items):
-            tree_item = QTreeWidgetItem([""] + item)
-            tree_item.setCheckState(0, Qt.Checked)
-            self.tree.insertTopLevelItem(i, tree_item)
+        for model in self.model_fields:
+            model_tree_item = QTreeWidgetItem(self.tree, [model["name"]])
+            for field in model["fields"]:
+                field_tree_item = QTreeWidgetItem(model_tree_item, [field["name"]])
+                field_tree_item.setCheckState(0, field["state"])
+            model_tree_item.setCheckState(0, model["state"])
+            model_tree_item.setFlags(model_tree_item.flags() | Qt.ItemIsAutoTristate)
+            model_tree_item.setExpanded(True)
 
-        self.tree.resizeColumnToContents(0)
         self.layout.addWidget(self.tree)
 
     def get_selected_items(self):
-        return [item for item in self.get_all_items() if item.checkState(0) is Qt.Checked]
+        return [item for item in self.get_all_items() if item.checkState(0) == Qt.Checked]
 
     def redraw(self):
         self.tree.clear()
