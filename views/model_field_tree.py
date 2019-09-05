@@ -62,6 +62,7 @@ class ModelFieldTree(QDialog):
 
     def render_tree(self):
         self.tree = QTreeWidget()
+        self.tree.setHeaderLabel("")
         for model in self.model_fields:
             model_tree_item = QTreeWidgetItem(self.tree, [model["name"]])
             for field in model["fields"]:
