@@ -7,6 +7,7 @@ class ModelFieldTree(QDialog):
         self.mw = mw
         self.model_fields = model_fields
         self.selected_items = []
+        self.all_items = []
         self.setWindowTitle("Notes and Fields")
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
