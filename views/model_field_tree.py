@@ -91,11 +91,9 @@ class ModelFieldTree(QDialog):
 
     def render_buttons(self):
         btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-
         self.button_box = QDialogButtonBox(btns)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-
         self.btn_layout = QVBoxLayout()
         self.btn_layout.addWidget(self.button_box)
         self.layout.addLayout(self.btn_layout)
@@ -103,4 +101,3 @@ class ModelFieldTree(QDialog):
     def accept(self):
         self.selected_items = self.get_selected_items()
         super().accept()
-

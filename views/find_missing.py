@@ -3,62 +3,60 @@ from functools import partial
 from aqt import mw
 from aqt.qt import *
 import aqt.deckchooser
-import aqt.modelchooser
 
-from . import field_chooser, multi_chooser
+from . import model_field_tree
 
 
 class FindMissingWords(QVBoxLayout):
     def __init__(self):
         super().__init__()
         self.deck_selection_enabled = True
-        self.model_selection_enabled = False
-        self.field_selection_enabled = False
+        self.model_field_selection_enabled = True
         self.model_field_items = []
         self.selected_decks = []
         self.render()
 
     def render(self):
-        # self.deck_chooser = self.render_filter("Filter deck?", self.deck_selection_enabled, self.toggle_deck_selection, aqt.deckchooser.DeckChooser)
-        # self.model_chooser = self.render_filter("Filter model/note type?", self.model_selection_enabled, self.toggle_model_selection, aqt.modelchooser.ModelChooser)
-        # self.field_chooser = self.render_filter("Filter field?", self.field_selection_enabled, self.toggle_field_selection, field_chooser.FieldChooser)
-        # current_model = mw.col.models.current()
-        # self.render_deck_chooser()
-        self.render_model_field_tree()
+        self.render_deck_chooser()
+        self.render_model_field_chooser()
         self.render_text_area()
         self.render_search_button()
 
     def render_deck_chooser(self):
-        open_chooser_btn = QPushButton("Deck")
-        open_chooser_btn.clicked.connect(self.open_deck_chooser)
-        self.addWidget(open_chooser_btn)
+        self.deck_selection_checkbox = QCheckBox("Filter Decks?")
+        self.deck_selection_checkbox.setChecked(self.deck_selection_enabled)
+        self.deck_selection_checkbox.stateChanged.connect(self.toggle_deck_selection)
 
-    def open_deck_chooser(self):
-        decks = mw.col.decks.all()
-        deck_chooser_data = [[deck["name"]] for deck in decks]
-        deck_chooser_widget = multi_chooser.ModelFieldTree(mw, deck_chooser_data, ["Deck"], "Decks")
-        # from aqt.qt import debug; debug()
-        if deck_chooser_widget.selected_items:
-            self.selected_decks = deck_chooser_widget.selected_items
-            print([deck.data(1,0) for deck in self.selected_decks])
+        self.deck_chooser_parent_widget = QWidget()
+        self.deck_chooser = aqt.deckchooser.DeckChooser(mw, self.deck_chooser_parent_widget)
+        self.deck_chooser_parent_widget.setEnabled(self.deck_selection_enabled)
 
-    def render_model_chooser(self):
-        open_chooser_btn = QPushButton("Model")
-        open_chooser_btn.clicked.connect(self.open_model_chooser)
-        self.addWidget(open_chooser_btn)
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(self.deck_selection_checkbox)
+        btn_layout.addStretch(1)
+        btn_layout.addWidget(self.deck_chooser_parent_widget)
+        self.addLayout(btn_layout)
 
-    def open_model_chooser(self):
-        models = mw.col.models.all()
-        model_chooser_data = [[model["name"]] for model in models]
-        model_chooser_widget = multi_chooser.ModelFieldTree(mw, model_chooser_data, "Note Types")
-        if model_chooser_widget.selected_items:
-            self.selected_models = [model.data(1,0) for model in model_chooser_widget.selected_items]
-            print(self.selected_models)
+    def render_model_field_chooser(self):
+        checkbox = QCheckBox("Filter Note Type & Field?")
+        checkbox.setChecked(self.model_field_selection_enabled)
+        checkbox.stateChanged.connect(self.toggle_model_field_selection)
+        self.model_field_chooser_btn = QPushButton("Note Type & Field")
+        self.model_field_chooser_btn.clicked.connect(self.render_model_field_tree)
 
-    def render_field_chooser(self):
-        open_chooser_btn = QPushButton("Field")
-        open_chooser_btn.clicked.connect(self.open_field_chooser)
-        self.addWidget(open_chooser_btn)
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(checkbox)
+        btn_layout.addStretch(1)
+        btn_layout.addWidget(self.model_field_chooser_btn)
+        self.addLayout(btn_layout)
+
+    def render_model_field_tree(self):
+        if not self.model_field_items:
+            self.generate_model_field_data()
+
+        model_field_chooser_widget = model_field_tree.ModelFieldTree(mw, self.model_field_items, "Models/Fields")
+        if model_field_chooser_widget.selected_items:
+            print(model_field_chooser_widget.selected_items)
 
     def generate_model_field_data(self):
         all_models = mw.col.models.all()
@@ -71,12 +69,6 @@ class FindMissingWords(QVBoxLayout):
                 model_fields.append(field_dict)
             model_dict["fields"] = model_fields
             self.model_field_items.append(model_dict)
-
-    def render_model_field_tree(self):
-        if not self.model_field_items:
-            self.generate_model_field_data()
-
-        field_chooser_widget = multi_chooser.ModelFieldTree(mw, self.model_field_items, "Models/Fields")
 
     def render_filter(self, checkbox_label, state, on_state_change, chooser_class):
         checkbox = QCheckBox(checkbox_label)
@@ -94,17 +86,13 @@ class FindMissingWords(QVBoxLayout):
         self.addLayout(btn_layout)
         return chooser
 
-    def toggle_deck_selection(self, parent_widget):
+    def toggle_deck_selection(self):
         self.deck_selection_enabled = not self.deck_selection_enabled
-        parent_widget.setEnabled(self.deck_selection_enabled)
+        self.deck_chooser_parent_widget.setEnabled(self.deck_selection_enabled)
 
-    def toggle_model_selection(self, parent_widget):
-        self.model_selection_enabled = not self.model_selection_enabled
-        parent_widget.setEnabled(self.model_selection_enabled)
-
-    def toggle_field_selection(self, parent_widget):
-        self.field_selection_enabled = not self.field_selection_enabled
-        parent_widget.setEnabled(self.field_selection_enabled)
+    def toggle_model_field_selection(self):
+        self.model_field_selection_enabled = not self.model_field_selection_enabled
+        self.model_field_chooser_btn.setEnabled(self.model_field_selection_enabled)
 
     def render_text_area(self):
         self.text_area_label = QLabel()
