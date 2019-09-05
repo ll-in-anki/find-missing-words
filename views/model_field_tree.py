@@ -2,31 +2,21 @@ from aqt.qt import *
 
 
 class ModelFieldTree(QDialog):
-    def __init__(self, mw, model_fields, window_title="Chooser"):
+    def __init__(self, mw, model_fields):
         super().__init__()
         self.mw = mw
         self.model_fields = model_fields
         self.selected_items = []
-        self.setWindowTitle(window_title)
+        self.setWindowTitle("Notes and Fields")
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.render()
         self.exec_()
 
     def render(self):
-        # self.render_filter()
         self.render_select_all_none_buttons()
         self.render_tree()
         self.render_buttons()
-
-    def render_filter(self):
-        self.horizontalLayout = QHBoxLayout()                         
-        self.label = QLabel("Filter:")                                   
-        self.horizontalLayout.addWidget(self.label)                             
-        self.filter = QLineEdit()                               
-        self.filter.textEdited.connect(self.redraw)
-        self.horizontalLayout.addWidget(self.filter)                            
-        self.layout.addLayout(self.horizontalLayout)
 
     def render_select_all_none_buttons(self):
         self.select_btn_layout = QHBoxLayout()
@@ -40,29 +30,34 @@ class ModelFieldTree(QDialog):
         self.select_btn_layout.addWidget(self.select_none_btn)
         self.layout.addLayout(self.select_btn_layout)
 
-    def get_all_items(self):
+    def get_all_items(self, onlyChecked=False):
         items = []
-        num_items = self.tree.topLevelItemCount()
-        for i in range(num_items):
-            item = self.tree.topLevelItem(i)
-            items.append(item)
+        num_models = self.tree.topLevelItemCount()
+        for i in range(num_models):
+            model = self.tree.topLevelItem(i)
+            if onlyChecked and model.checkState(0) == Qt.Unchecked:
+                continue
+            model_dict = {"name": model.text(0), "state": model.checkState(0)}
+            fields = []
+            for j in range(model.childCount()):
+                field = model.child(j)
+                if onlyChecked and field.checkState(0) == Qt.Unchecked:
+                    continue
+                field_dict = {"name": field.text(0), "state": field.checkState(0)}
+                fields.append(field_dict)
+            model_dict["fields"] = fields
+            items.append(model_dict)
         return items
 
     def select_all(self):
-        for item in self.get_all_items():
-            item.setCheckState(0, Qt.Checked)
+        num_models = self.tree.topLevelItemCount()
+        for i in range(num_models):
+            self.tree.topLevelItem(i).setCheckState(0, Qt.Checked)
 
     def select_none(self):
-        for item in self.get_all_items():
-            item.setCheckState(0, Qt.Unchecked)
-
-    def create_tree_items(self):
-        tree_items = []
-        for item in self.items:
-            tree_item = QTreeWidgetItem([""] + item)
-            tree_item.setData(1, 0, item)
-            tree_items.append(tree_item)
-        return tree_items
+        num_models = self.tree.topLevelItemCount()
+        for i in range(num_models):
+            self.tree.topLevelItem(i).setCheckState(0, Qt.Unchecked)
 
     def render_tree(self):
         self.tree = QTreeWidget()
@@ -77,18 +72,6 @@ class ModelFieldTree(QDialog):
 
         self.layout.addWidget(self.tree)
 
-    def get_selected_items(self):
-        return [item for item in self.get_all_items() if item.checkState(0) == Qt.Checked]
-
-    def redraw(self):
-        self.tree.clear()
-        self.tree.addTopLevelItems(self.create_tree_items())
-        filtered_fields = [item for item in self.tree.findItems(self.filter.text(), Qt.MatchContains, column=1)].copy()
-        # filtered_models = [item for item in self.tree.findItems(self.filter.text(), Qt.MatchContains, column=2)]
-        self.tree.clear()
-        self.tree.addTopLevelItems(filtered_fields)
-        # self.tree.addTopLevelItems(filtered_models)
-
     def render_buttons(self):
         btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         self.button_box = QDialogButtonBox(btns)
@@ -99,5 +82,6 @@ class ModelFieldTree(QDialog):
         self.layout.addLayout(self.btn_layout)
 
     def accept(self):
-        self.selected_items = self.get_selected_items()
+        self.all_items = self.get_all_items()
+        self.selected_items = self.get_all_items(True)
         super().accept()

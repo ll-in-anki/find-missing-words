@@ -38,10 +38,10 @@ class FindMissingWords(QVBoxLayout):
         self.addLayout(btn_layout)
 
     def render_model_field_chooser(self):
-        checkbox = QCheckBox("Filter Note Type & Field?")
+        checkbox = QCheckBox("Filter Notes and Fields?")
         checkbox.setChecked(self.model_field_selection_enabled)
         checkbox.stateChanged.connect(self.toggle_model_field_selection)
-        self.model_field_chooser_btn = QPushButton("Note Type & Field")
+        self.model_field_chooser_btn = QPushButton("Notes and Fields")
         self.model_field_chooser_btn.clicked.connect(self.render_model_field_tree)
 
         btn_layout = QHBoxLayout()
@@ -54,9 +54,8 @@ class FindMissingWords(QVBoxLayout):
         if not self.model_field_items:
             self.generate_model_field_data()
 
-        model_field_chooser_widget = model_field_tree.ModelFieldTree(mw, self.model_field_items, "Models/Fields")
-        if model_field_chooser_widget.selected_items:
-            print(model_field_chooser_widget.selected_items)
+        self.model_field_chooser = model_field_tree.ModelFieldTree(mw, self.model_field_items)
+        self.model_field_items = self.model_field_chooser.all_items
 
     def generate_model_field_data(self):
         all_models = mw.col.models.all()
@@ -69,22 +68,6 @@ class FindMissingWords(QVBoxLayout):
                 model_fields.append(field_dict)
             model_dict["fields"] = model_fields
             self.model_field_items.append(model_dict)
-
-    def render_filter(self, checkbox_label, state, on_state_change, chooser_class):
-        checkbox = QCheckBox(checkbox_label)
-        checkbox.setChecked(state)
-
-        chooser_widget = QWidget()
-        chooser = chooser_class(mw, chooser_widget)
-        chooser_widget.setEnabled(state)
-        checkbox.stateChanged.connect(partial(on_state_change, chooser_widget))
-
-        btn_layout = QHBoxLayout()
-        btn_layout.addWidget(checkbox)
-        btn_layout.addStretch(1)
-        btn_layout.addWidget(chooser_widget)
-        self.addLayout(btn_layout)
-        return chooser
 
     def toggle_deck_selection(self):
         self.deck_selection_enabled = not self.deck_selection_enabled
@@ -113,6 +96,5 @@ class FindMissingWords(QVBoxLayout):
         # Search through fetched cards here
         deck_id = self.deck_selection_enabled and self.deck_chooser.selectedId()
         deck_name = self.deck_selection_enabled and self.deck_chooser.deckName()
-        model_name = self.model_selection_enabled and mw.col.models.current()['name']
-        field_name = self.field_selection_enabled and self.field_chooser.current_field_name
+        model_fields = self.model_field_selection_enabled and self.model_field_chooser.selected_items
 
