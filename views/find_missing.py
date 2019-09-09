@@ -13,6 +13,8 @@ class FindMissingWords(QVBoxLayout):
     def __init__(self):
         super().__init__()
 
+        self.REPLACEMENT_STRING = "[[[WORD]]]"
+
         self.results = []
         self.deck_selection_enabled = True
         self.model_field_selection_enabled = False
@@ -26,8 +28,9 @@ class FindMissingWords(QVBoxLayout):
     def cleanup(self):
         remHook('currentModelChanged', self.update_init_search)
 
-####### UI
-
+########################
+#######    UI    #######
+########################
 
     def render(self):
         self.render_deck_chooser()
@@ -134,7 +137,9 @@ class FindMissingWords(QVBoxLayout):
 
 
 
-####### Non-UI
+########################
+#######  Non-UI  #######
+########################
 
 
 
@@ -145,19 +150,19 @@ class FindMissingWords(QVBoxLayout):
     
     def update_init_search(self):
         # print("Update Init Search")
-        # deck_id = self.deck_selection_enabled and self.deck_chooser.selectedId()
         deck_name = self.deck_selection_enabled and self.deck_chooser.deckName()
         model_fields = self.model_field_selection_enabled and self.model_field_selected_items
 
-        #if self.model_field_selection_enabled and (len(model_fields) > 0):
-            #decksSelected = [mod.name for mod in model_fields]
-            #fieldsSelected = [field.name for field in mod.field for mod in model_fields]
+        if self.model_field_selection_enabled:
+            noteTypesSelected = [mod['name'] for mod in model_fields] if model_fields else ""
+            fieldsSelected = {fields['name'] for mod in model_fields for fields in mod['fields']} if model_fields else ""
+            print(noteTypesSelected, fieldsSelected)
 
         self.initQuery = ""
         self.initQuery += self.search_formatter(True, "deck", deck_name) if deck_name else ""
-        #self.initQuery += self.search_formatter(True, "note", model_name) if model_name else ""
-        # TODO Fix search init generator
-
+        self.initQuery += self.search_multiple_terms_formatter("note", noteTypesSelected) if self.model_field_selection_enabled else ""
+        self.initQuery += self.search_multiple_fields_formatter(fieldsSelected, self.REPLACEMENT_STRING) if self.model_field_selection_enabled else ""
+        
         self.search_preview.setText(self.get_final_search("[Word]"))
 
 
@@ -170,8 +175,7 @@ class FindMissingWords(QVBoxLayout):
         
         self.update_init_search()
 
-        # Convert to set to get unique entries, after splitting text box by white space
-        words = set(self.text_area_text.toPlainText().split())
+        words = {self.text_area_text.toPlainText().split()}
 
         for word in words:
             query = self.get_final_search(word)
@@ -188,7 +192,7 @@ class FindMissingWords(QVBoxLayout):
         runHook('newMissingCardsResults', self.results)
 
 
-    def search_formatter(self, encapsulated, field, term):
+    def search_formatter(self, encapsulated, field, term, withSpace=True):
         search = ""
 
         if encapsulated:
@@ -198,18 +202,43 @@ class FindMissingWords(QVBoxLayout):
             search += str(term)
         else:
             search += str(field) + ":" + str(term)
-
+        
         if encapsulated:
-            search += "\" "
-        else:
+            search += "\""
+        
+        if withSpace:
             search += " "
         
         return search
 
+    def search_multiple_terms_formatter(self, field, terms):
+        if not terms:
+            return ""
+        elif len(terms) == 1:
+            return self.search_formatter(True, field, terms[0])
+        
+        search = "("
+        search += " or ".join(self.search_formatter(True, field, x, False) for x in terms)
+        search += ") "
+
+        return search
+
+    def search_multiple_fields_formatter(self, fields, term):
+        if not fields:
+            return ""
+        elif len(fields) == 1:
+            return self.search_formatter(True, fields[0], term)
+        
+        search = "("
+        search += " or ".join(self.search_formatter(True, x, term, False) for x in fields)
+        search += ") "
+
+        return search
+
 
     def get_final_search(self, word):
-        return self.initQuery #+ self.search_formatter(True, self.field_name if self.field_name else False, word)
-        #TODO Fix Final Search provider
+        return self.initQuery.replace(self.REPLACEMENT_STRING, word)        
+
 
     def create_result_item(self, word):
         # print("Create Result Item: " + str(word))
