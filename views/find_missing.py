@@ -161,9 +161,15 @@ class FindMissingWords(QVBoxLayout):
             print(noteTypesSelected, fieldsSelected)
 
         self.initQuery = ""
+        
         self.initQuery += self.search_formatter(True, "deck", deck_name) if deck_name else ""
+
         self.initQuery += self.search_multiple_terms_formatter("note", noteTypesSelected) if self.model_field_selection_enabled else ""
-        self.initQuery += self.search_multiple_fields_formatter(fieldsSelected, self.REPLACEMENT_STRING) if self.model_field_selection_enabled else ""
+        
+        if self.model_field_selection_enabled:
+            self.initQuery += self.search_multiple_fields_formatter(fieldsSelected, self.REPLACEMENT_STRING) 
+        else:
+            self.initQuery += self.REPLACEMENT_STRING
         
         self.search_preview.setText(self.get_final_search("[Word]"))
 
@@ -177,7 +183,7 @@ class FindMissingWords(QVBoxLayout):
         
         self.update_init_search()
 
-        words = {self.text_area_text.toPlainText().split()}
+        words = set(self.text_area_text.toPlainText().split())
 
         for word in words:
             query = self.get_final_search(word)
