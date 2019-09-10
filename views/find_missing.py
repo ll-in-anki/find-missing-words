@@ -76,6 +76,7 @@ class FindMissingWords(QVBoxLayout):
         self.model_field_chooser = model_field_tree.ModelFieldTree(mw, self.model_field_items)
         self.model_field_items = self.model_field_chooser.all_items
         self.model_field_selected_items = self.model_field_chooser.get_all_items(True)
+        self.update_init_search()
 
     def generate_model_field_data(self):
         all_models = mw.col.models.all()
@@ -155,7 +156,8 @@ class FindMissingWords(QVBoxLayout):
 
         if self.model_field_selection_enabled:
             noteTypesSelected = [mod['name'] for mod in model_fields] if model_fields else ""
-            fieldsSelected = {fields['name'] for mod in model_fields for fields in mod['fields']} if model_fields else ""
+            fieldsSelected = list({fields['name'] for mod in model_fields for fields in mod['fields']} if model_fields else "")
+            
             print(noteTypesSelected, fieldsSelected)
 
         self.initQuery = ""
