@@ -163,10 +163,10 @@ class FindMissingWords(QVBoxLayout):
         self.initQuery = ""
         
         self.initQuery += self.search_formatter(True, "deck", deck_name) if deck_name else ""
-
-        self.initQuery += self.search_multiple_terms_formatter("note", noteTypesSelected) if self.model_field_selection_enabled else ""
         
         if self.model_field_selection_enabled:
+            self.initQuery += self.search_multiple_terms_formatter("note", noteTypesSelected)
+
             self.initQuery += self.search_multiple_fields_formatter(fieldsSelected, self.REPLACEMENT_STRING) 
         else:
             self.initQuery += self.REPLACEMENT_STRING
