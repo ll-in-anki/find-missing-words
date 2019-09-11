@@ -1,6 +1,7 @@
 from aqt.qt import *
 
 from . import find_missing
+from . import create_notes
 
 
 class Tabs(QTabWidget):
@@ -14,3 +15,10 @@ class Tabs(QTabWidget):
         self.setTabText(0, "Find Missing Words")
         find_missing_layout = find_missing.FindMissingWords()
         self.tab_1.setLayout(find_missing_layout)
+
+
+        self.tab_2 = QWidget()
+        self.addTab(self.tab_2, "Create Notes")
+        #self.setTabText(0, "Find Missing Words")
+        create_notes_layout = create_notes.CreateNotes()
+        self.tab_2.setLayout(create_notes_layout)
