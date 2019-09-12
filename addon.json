@@ -1,0 +1,16 @@
+{
+    "display_name": "Find Missing Words",
+    "module_name": "find_missing_words",
+    "repo_name": "find-missing-words",
+    "ankiweb_id": "",
+    "author": "ll-in-anki",
+    "contact": "https://github.com/ll-in-anki",
+    "homepage": "https://github.com/ll-in-anki/find-missing-words",
+    "copyright_start": 2019,
+    "tags": "vocab reading texts",
+    "conflicts": [],
+    "targets": [
+        "anki20",
+        "anki21"
+    ]
+}
