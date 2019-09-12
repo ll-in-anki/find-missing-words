@@ -10,5 +10,5 @@ class Search(QMainWindow):
         super().__init__(parent=parent)
         # self.parent = parent
         # Set up UI from pre-generated UI form:
-        self.form = search_form.Ui_Dialog()
+        self.form = search_form.Ui_MainWindow()
         self.form.setupUi(self)

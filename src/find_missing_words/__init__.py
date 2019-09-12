@@ -4,5 +4,4 @@ def initialize_addon():
     initialize_menu_item()
 
 
-if __name__ == "__main__":
-    initialize_addon()
+initialize_addon()
