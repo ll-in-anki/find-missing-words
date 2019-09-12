@@ -1,10 +1,7 @@
-# import the main window object (mw) from aqt
 from aqt import mw
-
-# import all of the Qt GUI library
 from aqt.qt import *
 
-from .views import tabs
+from src.find_missing_words.views import tabs
 
 
 class UI(QWidget):
