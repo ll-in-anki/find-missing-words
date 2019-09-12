@@ -5,7 +5,7 @@ from .search import Search
 
 
 def invoke_addon_window():
-    window = Search()
+    window = Search(mw)
 
 
 def initialize_menu_item():
