@@ -10,7 +10,7 @@ class Search(QWidget):
         super().__init__(parent=parent)
         # self.parent = parent
         # Set up UI from pre-generated UI form:
-        self.form = search_form.Ui_MainWindow()
+        self.form = search_form.Ui_Form()
         self.form.setupUi(self)
         self.show()
         self.raise_()
