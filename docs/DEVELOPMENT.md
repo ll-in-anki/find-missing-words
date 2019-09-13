@@ -23,10 +23,13 @@ UI files are used to speed up visual development and reduce extra code in the bu
 1. Open Qt Designer and start a UI file
     - Not MainWindows, opt for Widgets or Dialogs
 1. Save to `designer/` in this repo
-    - i.e. `my_component.ui`
+    - i.e. `designer/my_component.ui`
 1. Create file in `src/find_missing_words/gui`
+    - i.e. `src/find_missing_words/gui/my_component.py`
 1. Import and setup the ui form in a class
     ```python
+    from aqt import mw
+   
     from .forms import my_component as my_component_form
    
     # Inherit whichever Qt window you chose in the designer
