@@ -2,7 +2,7 @@ from aqt import mw, deckchooser
 from aqt.qt import *
 from anki.hooks import runHook
 
-from .forms import search_tabbed as search_form
+from .forms import search as search_form
 from . import note_field_tree
 
 
