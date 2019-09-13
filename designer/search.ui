@@ -39,9 +39,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="filter_model_fields_hbox">
+    <layout class="QHBoxLayout" name="filter_note_fields_hbox">
      <item>
-      <widget class="QCheckBox" name="filter_model_fields_checkbox">
+      <widget class="QCheckBox" name="filter_note_fields_checkbox">
        <property name="text">
         <string>Filter note types/fields?</string>
        </property>
