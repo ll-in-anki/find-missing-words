@@ -4,10 +4,10 @@
 
 1. Clone this repo
 1. Install [ll-in-anki's fork of aab](https://github.com/ll-in-anki/anki-addon-builder)
-1. Run `aab build` the clone destination
-1. Setup a symlink to the build
-    - `ln -s <clone dir>/build/dist/find_missing_words/ find_missing_words`
-1. Edit files in src, run `aab build` on the clone dir on change
+1. Run `aab build` in the clone dir
+1. Setup a symlink to the build in Anki addons dir
+    - `ln -s <clone dir>/build/dist/find_missing_words/ ~/.local/share/Anki2/addons21/find_missing_words`
+1. Edit files in src, run `aab build` in the clone dir on change
 
 ## Tips
 
