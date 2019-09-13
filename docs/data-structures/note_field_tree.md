@@ -14,39 +14,39 @@ The structure holds data useful for the QTreeWidget that represents this structu
 ```json
 [
     {
-        name: "Note Name with No Fields Selected",
-        state: 0,
-        fields: [
+        "name": "Note Name with No Fields Selected",
+        "state": 0,
+        "fields": [
             {
-                name: "Field Name 1",
-                state: 0
+                "name": "Field Name 1",
+                "state": 0
             },{
-                name: "Field Name 2",
-                state: 0
+                "name": "Field Name 2",
+                "state": 0
             }
         ]
     }, {
-        name: "Note Name with Some Fields Selected",
-        state: 1,
-        fields: [
+        "name": "Note Name with Some Fields Selected",
+        "state": 1,
+        "fields": [
             {
-                name: "Field Name 1",
-                state: 2
+                "name": "Field Name 1",
+                "state": 2
             },{
-                name: "Field Name 2",
-                state: 0
+                "name": "Field Name 2",
+                "state": 0
             }
         ]
     }, {
-        name: "Note Name with All Fields Selected",
-        state: 2,
-        fields: [
+        "name": "Note Name with All Fields Selected",
+        "state": 2,
+        "fields": [
             {
-                name: "Field Name 1",
-                state: 2
+                "name": "Field Name 1",
+                "state": 2
             },{
-                name: "Field Name 2",
-                state: 2
+                "name": "Field Name 2",
+                "state": 2
             }
         ]
     }
