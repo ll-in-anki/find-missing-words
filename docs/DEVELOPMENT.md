@@ -22,11 +22,15 @@ UI files are used to speed up visual development and reduce extra code in the bu
     - `sudo apt install build-essentials qtcreator`
 1. Open Qt Designer and start a UI file
     - Not MainWindows, opt for Widgets or Dialogs
-1. Save to `designer/` in this repo
+1. Name each object you want to reference later in Qt Designer's Object Inspector (top right)
+    - i.e. `pushButton_2` -> `next_step_button`
+1. Edit attributes of the objects in the Property Editor (under Object Inspector)
+    - i.e. height, title, text, tooltip, etc.
+1. Save UI file to `designer/` in this repo
     - i.e. `designer/my_component.ui`
-1. Create file in `src/find_missing_words/gui`
+1. Create Python file in `src/find_missing_words/gui`
     - i.e. `src/find_missing_words/gui/my_component.py`
-1. Import and setup the ui form in a class
+1. Import and setup the UI form in a class
     ```python
     from aqt import mw
    
@@ -34,15 +38,19 @@ UI files are used to speed up visual development and reduce extra code in the bu
    
     # Inherit whichever Qt window you chose in the designer
     # Could be QDialog or QWidget
-    class ComponentName(QDialog):
+    class MyComponent(QDialog):
         def __init__(self, parent=None):
             super().__init__()
             self.parent = parent or mw
    
             # Check the compiled UI file's class to call on the next line
             # Could be Ui_Form or Ui_Dialog
-            self.form = component_form.Ui_Form()
+            self.form = my_component_form.Ui_Form()
             self.form.setupUi(self)
+         
+        def foo(self):
+            # Reference objects (e.g. widgets, layouts) from Qt Designer by form.name
+            self.form.next_step_button.clicked.connect(self.bar)
     ```
 1. Invoke the UI in Anki
     - Not sure of definitive answer yet, but this addon works as follows so far:
