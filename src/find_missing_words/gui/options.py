@@ -5,7 +5,9 @@ from .search import Search
 
 
 def invoke_addon_window():
-    window = Search(mw)
+    # Prevent garbage collection my assigning widget to top-level mw
+    mw.find_missing_words_widget = window = Search(mw)
+    window.show()
 
 
 def initialize_menu_item():
