@@ -5,6 +5,10 @@ from .forms import note_field_tree as tree_form
 
 
 class NoteFieldTree(QDialog):
+    """
+    Dialog containing tree widget that organizes notes/models and their fields
+    """
+
     def __init__(self, note_fields, parent=None):
         super().__init__()
         self.mw = mw
@@ -27,21 +31,21 @@ class NoteFieldTree(QDialog):
 
     def get_all_items(self, only_checked=False):
         items = []
-        num_models = self.form.tree_widget.topLevelItemCount()
-        for i in range(num_models):
-            model = self.form.tree_widget.topLevelItem(i)
-            if only_checked and model.checkState(0) == Qt.Unchecked:
+        num_notes = self.form.tree_widget.topLevelItemCount()
+        for i in range(num_notes):
+            note = self.form.tree_widget.topLevelItem(i)
+            if only_checked and note.checkState(0) == Qt.Unchecked:
                 continue
-            model_dict = {"name": model.text(0), "state": model.checkState(0)}
+            note_dict = {"name": note.text(0), "state": note.checkState(0)}
             fields = []
-            for j in range(model.childCount()):
-                field = model.child(j)
+            for j in range(note.childCount()):
+                field = note.child(j)
                 if only_checked and field.checkState(0) == Qt.Unchecked:
                     continue
                 field_dict = {"name": field.text(0), "state": field.checkState(0)}
                 fields.append(field_dict)
-            model_dict["fields"] = fields
-            items.append(model_dict)
+            note_dict["fields"] = fields
+            items.append(note_dict)
         return items
 
     def select_all(self):
@@ -62,14 +66,14 @@ class NoteFieldTree(QDialog):
 
     def render_tree(self):
         self.form.tree_widget.setHeaderLabel("")
-        for model in self.note_fields:
-            model_tree_item = QTreeWidgetItem(self.form.tree_widget, [model["name"]])
-            for field in model["fields"]:
-                field_tree_item = QTreeWidgetItem(model_tree_item, [field["name"]])
+        for note in self.note_fields:
+            note_tree_item = QTreeWidgetItem(self.form.tree_widget, [note["name"]])
+            for field in note["fields"]:
+                field_tree_item = QTreeWidgetItem(note_tree_item, [field["name"]])
                 field_tree_item.setCheckState(0, field["state"])
-            model_tree_item.setCheckState(0, model["state"])
-            model_tree_item.setFlags(model_tree_item.flags() | Qt.ItemIsAutoTristate)
-            model_tree_item.setExpanded(False)
+            note_tree_item.setCheckState(0, note["state"])
+            note_tree_item.setFlags(note_tree_item.flags() | Qt.ItemIsAutoTristate)
+            note_tree_item.setExpanded(False)
 
     def accept(self):
         self.all_items = self.get_all_items()
