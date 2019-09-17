@@ -7,6 +7,8 @@ from aqt.qt import *
 
 from .search import Search
 
+ADDON_NAME = "Find Missing Words"
+
 
 def invoke_addon_window():
     """
@@ -24,6 +26,16 @@ def initialize_menu_item():
     """
     Create menu item for addon in Anki "Tools" menu
     """
-    action = QAction("Find Missing Words", mw)
+    action = QAction(ADDON_NAME, mw)
     action.triggered.connect(invoke_addon_window)
     mw.form.menuTools.addAction(action)
+
+
+def cleanup_menu_items():
+    """
+    Remove any duplicate menu items for the addon in Anki "Tools" menu
+    Used in development when the addon (at therefore its menu item) is reloaded multiple times within an Anki session.
+    """
+    old_actions = [action for action in mw.form.menuTools.actions() if action.text() == ADDON_NAME]
+    for action in old_actions:
+        mw.form.menuTools.removeAction(action)

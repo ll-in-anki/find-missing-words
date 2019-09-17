@@ -1,3 +1,11 @@
+def addon_reloader_before():
+    """
+    Remove any instance(s) of the addon in the Anki Tools menu to prevent duplicates
+    """
+    from .gui.options import cleanup_menu_items
+    cleanup_menu_items()
+
+
 def addon_reloader_after():
     """
     Add hook for AnkiAddonReloader to auto-show the addon after reloading to save clicks
