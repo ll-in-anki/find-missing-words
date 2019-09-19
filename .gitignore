@@ -1,4 +1,32 @@
-.idea
-.vscode
-*__pycache__*
+# Linux FM
+.hidden
+.directory
+
+# Byte-compiled / optimized / DLL files
+*.pyo
+*.pyc
+__pycache__/
+
+# Python
+.venv
+venv/
 .pylintrc
+
+# IDEs
+*.sublime-project
+*.sublime-workspace
+.sublime-backup/
+.idea/
+.vscode/
+
+# Build files
+build
+src/*/gui/forms/anki*
+src/*/gui/forms/LICENSE*
+src/*/gui/resources/anki*
+src/*/gui/resources/LICENSE*
+*-anki2*.zip
+
+# Anki
+src/*/meta.json
+src/*/manifest.json
