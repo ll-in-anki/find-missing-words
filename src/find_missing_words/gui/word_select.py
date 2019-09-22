@@ -1,4 +1,5 @@
 from aqt.qt import *
+from anki.hooks import runHook
 
 
 class FlowLayout(QLayout):
@@ -18,16 +19,14 @@ class FlowLayout(QLayout):
     def horizontalSpacing(self):
         if self._hspacing >= 0:
             return self._hspacing
-        else:
-            return self.smartSpacing(
-                QStyle.PM_LayoutHorizontalSpacing)
+        return self.smartSpacing(
+            QStyle.PM_LayoutHorizontalSpacing)
 
     def verticalSpacing(self):
         if self._vspacing >= 0:
             return self._vspacing
-        else:
-            return self.smartSpacing(
-                QStyle.PM_LayoutVerticalSpacing)
+        return self.smartSpacing(
+            QStyle.PM_LayoutVerticalSpacing)
 
     def count(self):
         return len(self._items)
@@ -98,18 +97,17 @@ class FlowLayout(QLayout):
         parent = self.parent()
         if parent is None:
             return -1
-        elif parent.isWidgetType():
+        if parent.isWidgetType():
             return parent.style().pixelMetric(pm, None, parent)
-        else:
-            return parent.spacing()
+        return parent.spacing()
 
 
 class Bubble(QLabel):
-    def __init__(self, text, known, card_ids):
+    def __init__(self, text, known, note_ids):
         super().__init__(text)
         self.word = text
         self.known = known
-        self.card_ids = card_ids
+        self.note_ids = note_ids
         self.setContentsMargins(5, 5, 5, 5)
         self.setCursor(Qt.PointingHandCursor)
 
@@ -123,24 +121,30 @@ class Bubble(QLabel):
         super().paintEvent(event)
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
-        print(self.card_ids)
+        print(self.note_ids)
+        runHook("clear_notes")
+        if self.note_ids:
+            for note_id in self.note_ids:
+                runHook("show_note", note_id)
 
 
-class WordSelect(QMainWindow):
+class WordSelect(QScrollArea):
     def __init__(self, word_model, parent=None):
-        super().__init__(parent)
-        self.mainArea = QScrollArea(self)
-        self.mainArea.setWidgetResizable(True)
-        widget = QWidget(self.mainArea)
+        super().__init__()
+        self.parent = parent
+
+        widget = QWidget(self)
+        self.setWidgetResizable(True)
+        self.setWidget(widget)
+
         widget.setMinimumWidth(50)
         layout = FlowLayout(widget)
+
         self.words = []
         for word in word_model:
             known = word_model[word]["known"]
-            card_ids = word_model[word]["card_ids"]
-            word_bubble = Bubble(word, known, card_ids)
+            note_ids = word_model[word]["note_ids"]
+            word_bubble = Bubble(word, known, note_ids)
             word_bubble.setFixedWidth(word_bubble.sizeHint().width())
             self.words.append(word_bubble)
             layout.addWidget(word_bubble)
-        self.mainArea.setWidget(widget)
-        self.setCentralWidget(self.mainArea)

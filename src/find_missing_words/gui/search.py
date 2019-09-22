@@ -9,7 +9,7 @@ from aqt.qt import *
 from anki.hooks import runHook
 
 from .forms import search as search_form
-from . import note_field_tree, flow_layout
+from . import note_field_tree, note_creation
 
 
 class Search(QWidget):
@@ -132,17 +132,15 @@ class Search(QWidget):
         for word in words:
             query = self.get_final_search(word)
 
-            found_card_ids = mw.col.findCards(query)
-            known = len(found_card_ids) > 0
+            found_note_ids = mw.col.findNotes(query)
+            known = len(found_note_ids) > 0
             word_model[word] = {
-                "card_ids": found_card_ids,
+                "note_ids": found_note_ids,
                 "known": known
             }
-            print(query + ": " + str(known))
 
-        runHook('newMissingCardsResults', self.results)
-        self.word_select = flowLayout = flow_layout.WordSelect(word_model, self)
-        flowLayout.show()
+        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model)
+        note_creation_window.show()
 
     @staticmethod
     def search_formatter(encapsulated, field, term, with_space=True):
