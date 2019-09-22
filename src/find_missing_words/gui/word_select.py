@@ -121,11 +121,10 @@ class Bubble(QLabel):
         super().paintEvent(event)
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
-        print(self.note_ids)
         runHook("clear_notes")
         if self.note_ids:
             for note_id in self.note_ids:
-                runHook("show_note", note_id)
+                runHook("populate_note", note_id)
 
 
 class WordSelect(QScrollArea):

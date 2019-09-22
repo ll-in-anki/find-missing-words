@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1067</width>
-    <height>556</height>
+    <width>1201</width>
+    <height>590</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,22 +110,14 @@
         </layout>
        </item>
        <item>
-        <widget class="QScrollArea" name="notes_scroll_area">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="notes_scroll_area_widget">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>493</width>
-            <height>459</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2"/>
-         </widget>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QListWidget" name="note_list_widget"/>
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="note_stacked_widget"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
