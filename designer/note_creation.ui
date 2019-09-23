@@ -76,52 +76,56 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="tab_widget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="notes_tab">
-      <attribute name="title">
-       <string>Notes</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <layout class="QHBoxLayout" name="create_buttons_hbox">
+    <layout class="QVBoxLayout" name="note_pane_vbox">
+     <item>
+      <widget class="QTabWidget" name="tab_widget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="notes_tab">
+        <attribute name="title">
+         <string>Notes</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Create:</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="create_buttons_hbox">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Create:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
          <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QListWidget" name="note_list_widget"/>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="note_stacked_widget"/>
+           </item>
+          </layout>
          </item>
         </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QListWidget" name="note_list_widget"/>
-         </item>
-         <item>
-          <widget class="QStackedWidget" name="note_stacked_widget"/>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </widget>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
