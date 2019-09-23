@@ -1,3 +1,5 @@
+import re
+
 from bs4 import BeautifulSoup as Soup
 from aqt import mw
 import aqt.editor
@@ -9,12 +11,14 @@ from . import word_select
 
 
 class NoteCreation(QWidget):
-    def __init__(self, word_model, parent=None):
+    def __init__(self, word_model, text, parent=None):
         super().__init__()
         self.parent = parent
         self.word_model = word_model
+        self.text = text
         self.note_ids = []
         self.word_label = None
+        self.sentences = None
         self.mw = mw
 
         self.form = creation_form.Ui_Form()
@@ -40,16 +44,17 @@ class NoteCreation(QWidget):
         self.form.note_stacked_widget.setSizePolicy(stack_policy)
 
     def reset_hooks(self):
-        remHook("clear_notes", self.reset_list)
-        remHook("populate_notes", self.populate_notes)
-        remHook("display_word", self.display_word)
-        addHook("clear_notes", self.reset_list)
-        addHook("populate_notes", self.populate_notes)
-        addHook("display_word", self.display_word)
+        remHook("load_word", self.load_word)
+        addHook("load_word", self.load_word)
 
     def render_word_select(self):
-        self.word_select = word_select_widget = word_select.WordSelect(self.word_model, self)
+        self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, self)
         self.form.word_select_pane_vbox.addWidget(word_select_widget)
+
+    def load_word(self, word, note_ids):
+        self.reset_list()
+        self.display_word(word)
+        self.populate_notes(note_ids)
 
     def populate_notes(self, note_ids):
         """
@@ -74,6 +79,16 @@ class NoteCreation(QWidget):
             self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
             self.form.note_pane_vbox.insertWidget(0, self.word_label)
         self.word_label.setText(word)
+        self.display_sentences(word)
+
+    def find_sentences(self, word):
+        """
+        Find sentences surrounding a word in the original text
+        :param word: word in the text
+        :return: list of sentences including the word
+        """
+        pattern = rf'[A-Za-z,"\' ]+{word}[A-Za-z,"\' ]+\.'
+        return "\n".join([match.strip() for match in re.findall(pattern, self.text)])
 
     @staticmethod
     def reformat_sort_field(text):
@@ -113,7 +128,6 @@ class NoteCreation(QWidget):
     def clear_note_editors(self):
         """
         Close any aqt.Editor instances (usually just one)
-        :return:
         """
         for i in range(self.form.note_stacked_widget.count()):
             widget = self.form.note_stacked_widget.widget(i)
@@ -121,5 +135,5 @@ class NoteCreation(QWidget):
             widget.deleteLater()
 
     def close(self):
-        remHook("clear_notes", self.reset_list)
-        remHook("populate_notes", self.populate_notes)
+        remHook("load_word", self.load_word)
+        super().close()

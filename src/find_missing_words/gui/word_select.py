@@ -121,15 +121,14 @@ class Bubble(QLabel):
         super().paintEvent(event)
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
-        runHook("clear_notes")
-        runHook("display_word", self.word)
-        runHook("populate_notes", self.note_ids)
+        runHook("load_word", self.word, self.note_ids)
 
 
 class WordSelect(QScrollArea):
-    def __init__(self, word_model, parent=None):
+    def __init__(self, text, word_model, parent=None):
         super().__init__()
         self.parent = parent
+        self.text = text
 
         widget = QWidget(self)
         self.setWidgetResizable(True)
@@ -139,7 +138,7 @@ class WordSelect(QScrollArea):
         layout = FlowLayout(widget)
 
         self.words = []
-        for word in word_model:
+        for word in text.split():
             known = word_model[word]["known"]
             note_ids = word_model[word]["note_ids"]
             word_bubble = Bubble(word, known, note_ids)

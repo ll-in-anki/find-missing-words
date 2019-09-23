@@ -126,10 +126,10 @@ class Search(QWidget):
         self.results.clear()
         self.update_init_search()
 
-        words = self.form.text_area.toPlainText().split()
+        text = self.form.text_area.toPlainText()
         word_model = {}
 
-        for word in words:
+        for word in text.split():
             query = self.get_final_search(word)
 
             found_note_ids = mw.col.findNotes(query)
@@ -139,7 +139,7 @@ class Search(QWidget):
                 "known": known
             }
 
-        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model)
+        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text)
         note_creation_window.show()
 
     @staticmethod
