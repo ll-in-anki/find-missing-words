@@ -9,7 +9,7 @@ from aqt.qt import *
 from anki.hooks import runHook
 
 from .forms import search as search_form
-from . import note_field_tree, note_creation
+from . import note_field_tree, note_creation, note_field_chooser
 
 
 class Search(QWidget):
@@ -38,7 +38,7 @@ class Search(QWidget):
         self.form.filter_decks_checkbox.stateChanged.connect(self.toggle_deck_selection)
 
         self.deck_chooser_parent_widget = QWidget()
-        self.deck_chooser = deckchooser.DeckChooser(mw, self.deck_chooser_parent_widget)
+        self.deck_chooser = deckchooser.DeckChooser(mw, self.deck_chooser_parent_widget, label=False)
         self.deck_chooser.deck.clicked.connect(self.update_deck_name)
         self.deck_chooser_parent_widget.setEnabled(self.deck_selection_enabled)
         self.update_init_search()
@@ -53,11 +53,16 @@ class Search(QWidget):
         self.form.filter_note_fields_checkbox.setChecked(self.note_field_selection_enabled)
         self.form.filter_note_fields_checkbox.stateChanged.connect(self.toggle_note_field_selection)
 
-        self.note_field_chooser_btn = QPushButton("Notes and Fields")
-        self.note_field_chooser_btn.clicked.connect(self.render_note_field_tree)
-        self.note_field_chooser_btn.setEnabled(self.note_field_selection_enabled)
+        self.note_field_chooser_parent_widget = QWidget()
+        self.note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.note_field_chooser_parent_widget)
+        self.note_field_chooser.btn.clicked.connect(self.update_note_fields)
+        self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
 
-        self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser_btn)
+        self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser_parent_widget)
+
+    def update_note_fields(self):
+        self.note_field_selected_items = self.note_field_chooser.selected_items
+        self.update_init_search()
 
     def toggle_deck_selection(self):
         self.deck_selection_enabled = not self.deck_selection_enabled
@@ -66,14 +71,14 @@ class Search(QWidget):
 
     def toggle_note_field_selection(self):
         self.note_field_selection_enabled = not self.note_field_selection_enabled
-        self.note_field_chooser_btn.setEnabled(self.note_field_selection_enabled)
+        self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
         self.update_init_search()
 
     def render_note_field_tree(self):
         if not self.note_field_items:
             self.generate_note_field_data()
 
-        self.note_field_chooser = note_field_tree.NoteFieldTree(self.note_field_items, parent=self)
+        self.note_field_chooser = note_field_tree.NoteFieldTree(self.note_field_items, single_selection_mode=True, parent=self)
         self.note_field_items = self.note_field_chooser.all_items
         self.note_field_selected_items = self.note_field_chooser.get_all_items(True)
         self.update_init_search()
@@ -108,8 +113,6 @@ class Search(QWidget):
             note_type_selected = [mod['name'] for mod in note_fields] if note_fields else ""
             fields_selected = list(
                 {fields['name'] for mod in note_fields for fields in mod['fields']} if note_fields else "")
-
-            print(note_type_selected, fields_selected)
 
         self.init_query = ""
         self.init_query += self.search_formatter(True, "deck", deck_name) if deck_name else ""

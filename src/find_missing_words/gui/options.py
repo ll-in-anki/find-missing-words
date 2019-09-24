@@ -6,8 +6,18 @@ from aqt import mw
 from aqt.qt import *
 
 from .search import Search
+from .config import ConfigDialog
 
 ADDON_NAME = "Find Missing Words"
+
+
+def invoke_config_window():
+    mw.find_missing_words_config = config = ConfigDialog(mw)
+    config.exec_()
+
+
+def initialize_config_window():
+    mw.addonManager.setConfigAction(__name__, invoke_config_window)
 
 
 def invoke_addon_window():
