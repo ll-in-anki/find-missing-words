@@ -6,10 +6,10 @@ Enter search queries and filter by decks, note types, and fields
 
 from aqt import mw, deckchooser
 from aqt.qt import *
-from anki.hooks import runHook
 
 from .forms import search as search_form
 from . import note_field_tree, note_creation, note_field_chooser
+from .config import ConfigProperties
 
 
 class Search(QWidget):
@@ -34,13 +34,19 @@ class Search(QWidget):
         self.form.search_button.clicked.connect(self.search)
 
     def render_deck_chooser(self):
-        self.form.filter_decks_checkbox.setChecked(self.deck_selection_enabled)
-        self.form.filter_decks_checkbox.stateChanged.connect(self.toggle_deck_selection)
-
         self.deck_chooser_parent_widget = QWidget()
         self.deck_chooser = deckchooser.DeckChooser(mw, self.deck_chooser_parent_widget, label=False)
-        self.deck_chooser.deck.clicked.connect(self.update_deck_name)
+        filter_on_decks = mw.addonManager.getConfig(__name__)[ConfigProperties.FILTER_DECK.value]
+        if filter_on_decks:
+            default_deck_name = mw.addonManager.getConfig(__name__)[ConfigProperties.DECK.value]
+            self.deck_chooser.setDeckName(default_deck_name)
+            self.deck_selection_enabled = True
         self.deck_chooser_parent_widget.setEnabled(self.deck_selection_enabled)
+        self.form.filter_decks_checkbox.setChecked(self.deck_selection_enabled)
+
+        self.form.filter_decks_checkbox.stateChanged.connect(self.toggle_deck_selection)
+        self.deck_chooser.deck.clicked.connect(self.update_deck_name)
+
         self.update_init_search()
 
         self.form.filter_decks_hbox.addWidget(self.deck_chooser_parent_widget)
@@ -50,13 +56,21 @@ class Search(QWidget):
         self.update_init_search()
 
     def render_note_field_chooser(self):
-        self.form.filter_note_fields_checkbox.setChecked(self.note_field_selection_enabled)
-        self.form.filter_note_fields_checkbox.stateChanged.connect(self.toggle_note_field_selection)
-
         self.note_field_chooser_parent_widget = QWidget()
         self.note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.note_field_chooser_parent_widget)
-        self.note_field_chooser.btn.clicked.connect(self.update_note_fields)
+        filter_on_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.FILTER_NOTE_FIELDS.value]
+        if filter_on_note_fields:
+            default_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.NOTE_FIELDS.value]
+            self.note_field_chooser.set_selected_items(default_note_fields)
+            self.note_field_selected_items = default_note_fields
+            self.note_field_selection_enabled = True
         self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
+        self.form.filter_note_fields_checkbox.setChecked(self.note_field_selection_enabled)
+
+        self.form.filter_note_fields_checkbox.stateChanged.connect(self.toggle_note_field_selection)
+        self.note_field_chooser.btn.clicked.connect(self.update_note_fields)
+
+        self.update_init_search()
 
         self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser_parent_widget)
 

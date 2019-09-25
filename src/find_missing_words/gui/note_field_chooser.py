@@ -6,13 +6,15 @@ class NoteFieldChooser(QHBoxLayout):
     Button to invoke note and field tree, whose text displays current tree selection
     Influenced by aqt.deckchooser.DeckChooser
     """
-    def __init__(self, mw, widget, single_selection_mode=False):
+    def __init__(self, mw, widget, single_selection_mode=False, selected_items=None):
         QHBoxLayout.__init__(self)
+        if selected_items is None:
+            selected_items = []
         self.widget = widget
         self.single_selection_mode = single_selection_mode
         self.mw = mw
         self.note_field_items = []
-        self.selected_items = []
+        self.selected_items = selected_items or []
         self.btn_text = "None"
 
         self.setContentsMargins(0,0,0,0)
@@ -31,6 +33,20 @@ class NoteFieldChooser(QHBoxLayout):
                 note_fields.append(field_dict)
             note_dict["fields"] = note_fields
             self.note_field_items.append(note_dict)
+
+    def set_selected_items(self, selected_note_field_items):
+        for note in self.note_field_items:
+            note_name = note["name"]
+            fields = note["fields"]
+            for new_note in selected_note_field_items:
+                if note_name == new_note["name"]:
+                    note["state"] = new_note["state"]
+                    new_note_fields = new_note["fields"]
+                    for field in fields:
+                        for new_field in new_note_fields:
+                            if field["name"] == new_field["name"]:
+                                field["state"] = new_field["state"]
+        self.update_value(selected_note_field_items)
 
     def setup_btn(self):
         self.btn = QPushButton()

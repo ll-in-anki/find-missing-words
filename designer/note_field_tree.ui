@@ -55,6 +55,18 @@
    <item>
     <widget class="QWidget" name="select_btn_row" native="true">
      <layout class="QHBoxLayout" name="select_btn_hbox">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
