@@ -74,9 +74,7 @@ class NoteCreationTab(QDialog):
 
         self.presets.pop(preset_id)
         self.order.pop(self.current_index)
-        current_row = self.form.note_preset_list_widget.currentRow()
-        # self.form.note_preset_list_widget.removeItemWidget(current_list_item)
-        item = self.form.note_preset_list_widget.takeItem(current_row)
+        item = self.form.note_preset_list_widget.takeItem(self.current_index)
         del item
         mw.addonManager.writeConfig(__name__, self.config)
 

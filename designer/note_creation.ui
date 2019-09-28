@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Word Select</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -88,13 +88,16 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QHBoxLayout" name="create_buttons_hbox">
+          <layout class="QHBoxLayout" name="create_hbox">
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>Create:</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="create_btns_hbox"/>
            </item>
            <item>
             <spacer name="horizontalSpacer">

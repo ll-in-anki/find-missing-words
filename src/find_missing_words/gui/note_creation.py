@@ -1,4 +1,5 @@
 import re
+import functools
 
 from bs4 import BeautifulSoup as Soup
 from aqt import mw
@@ -8,6 +9,7 @@ from anki.hooks import addHook, remHook
 
 from .forms import note_creation as creation_form
 from . import word_select
+from .config.properties import ConfigProperties
 
 
 class NoteCreation(QWidget):
@@ -55,6 +57,7 @@ class NoteCreation(QWidget):
         self.reset_list()
         self.display_word(word)
         self.populate_notes(note_ids)
+        self.render_note_creation_preset_buttons()
 
     def populate_notes(self, note_ids):
         """
@@ -133,6 +136,25 @@ class NoteCreation(QWidget):
             widget = self.form.note_stacked_widget.widget(i)
             self.form.note_stacked_widget.removeWidget(widget)
             widget.deleteLater()
+
+    def render_note_creation_preset_buttons(self):
+        self.remove_note_creation_preset_buttons()
+        config = mw.addonManager.getConfig(__name__)
+        presets = config[ConfigProperties.NOTE_CREATION_PRESETS.value]
+        for preset in presets.values():
+            text = preset["preset_name"]
+            btn = QPushButton(text)
+            self.form.create_btns_hbox.addWidget(btn)
+            btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
+
+    def remove_note_creation_preset_buttons(self):
+        for i in range(self.form.create_btns_hbox.count()):
+            btn = self.form.create_btns_hbox.takeAt(i)
+            if btn.widget():
+                btn.widget().deleteLater()
+
+    def create_note_from_preset(self, preset):
+        pass
 
     def close(self):
         remHook("load_word", self.load_word)
