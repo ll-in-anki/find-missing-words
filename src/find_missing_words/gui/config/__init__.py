@@ -1,5 +1,8 @@
-import enum
-
+"""
+Config dialog entry point.
+This module will load the config initially for the tabs.
+Each tab of the config will write to the config itself.
+"""
 from aqt import mw
 from aqt.qt import *
 

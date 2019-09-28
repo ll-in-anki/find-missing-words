@@ -49,14 +49,14 @@ class NoteFieldChooser(QHBoxLayout):
         self.update_value(selected_note_field_items)
 
     def set_single_selected_item(self, note_field_item):
-        note_name = note_field_item["note"]
-        field_name = note_field_item["field"]
+        note_name = note_field_item["name"]
+        field_name = note_field_item["fields"]
         for note in self.note_field_items:
             if note_name == note["name"]:
                 for field in note["fields"]:
                     if field_name == field["name"]:
                         field["state"] = True
-        self.update_value([note_field_item])
+        self.update_value(note_field_item)
 
     def setup_btn(self):
         self.btn = QPushButton()
@@ -90,8 +90,9 @@ class NoteFieldChooser(QHBoxLayout):
         self.selected_items = selected_items
         self.on_update_callback()
 
-    @staticmethod
-    def format_btn_text(items):
+    def format_btn_text(self, items):
+        if self.single_selection_mode:
+            items = [items]
         note_field_list = []
         for note in items:
             name = note["name"]

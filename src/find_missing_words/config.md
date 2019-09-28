@@ -64,12 +64,12 @@
 
 ### `note_creation_presets`
 
-- Type: `list[dict]`
-- Description: Preset notes and fields used for creating notes
+- Type: `dict`
+- Description: Preset notes and fields used for creating notes, indexed by uuid
 - Example:
     ```json
-    [
-      {
+    {
+      "3d0c26": {
         "preset_name": "My Vocab Preset",
         "preset_data": {
           "word_destination": {
@@ -84,6 +84,6 @@
           }
         }
       }
-    ]
+    }
     ```
 
