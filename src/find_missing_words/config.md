@@ -17,10 +17,14 @@
     ```json
     [
       {
-          "Vocab Note": [
-            "Word field",
-            "Example Sentence field"
-          ]
+        "name": "Cloze", 
+        "state": 1, 
+        "fields": [
+          {
+            "name": "Text", 
+            "state": 2
+          }
+        ]
       }
     ]
     ```
@@ -39,13 +43,19 @@
     ```json
     [
       {
-          "deck": "My French Deck",
-          "models": [
-              "Vocab Note": [
-                "Word field",
-                "Example Sentence field"
-              ]
-          ]
+        "deck": "My French Deck",
+        "models": [
+          {
+            "name": "Cloze", 
+            "state": 1, 
+            "fields": [
+              {
+                "name": "Text", 
+                "state": 2
+              }
+            ]
+          }
+        ]
       }
     ]
     ```
@@ -57,12 +67,22 @@
 - Type: `list[dict]`
 - Description: Preset notes and fields used for creating notes
 - Example:
-  ```json
+    ```json
     [
       {
-          "name": "My Vocab Preset",
-          "model": "Vocab Note",
-          "field": "Word field"
+        "preset_name": "My Vocab Preset",
+        "preset_data": {
+          "word_destination": {
+            "name": "Cloze",
+            "state": false,
+            "fields": [
+              {
+                "name": "Text",
+                "state:": true
+              }
+            ]
+          }
+        }
       }
     ]
     ```

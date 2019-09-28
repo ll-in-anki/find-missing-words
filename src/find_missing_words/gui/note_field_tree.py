@@ -61,19 +61,16 @@ class NoteFieldTree(QDialog):
             current_item = self.form.tree_widget.currentItem()
             current_item_text = current_item.text(0)
             parent_text = current_item.parent().text(0)
-            state = None
-            return [
-                {
-                    "name": parent_text,
-                    "state": state,
-                    "fields": [
-                        {
-                            "name": current_item_text,
-                            "state:": state
-                        }
-                    ]
-                }
-            ]
+            return {
+                "name": parent_text,
+                "state": False,
+                "fields": [
+                    {
+                        "name": current_item_text,
+                        "state:": True
+                    }
+                ]
+            }
         return self.get_all_items(True)
 
     def select_all(self):
@@ -100,6 +97,8 @@ class NoteFieldTree(QDialog):
                 field_tree_item = QTreeWidgetItem(note_tree_item, [field["name"]])
                 if not self.single_selection_mode:
                     field_tree_item.setCheckState(0, field["state"])
+                else:
+                    field_tree_item.setSelected(field["state"])
             if not self.single_selection_mode:
                 note_tree_item.setCheckState(0, note["state"])
                 note_tree_item.setFlags(note_tree_item.flags() | Qt.ItemIsAutoTristate)

@@ -8,8 +8,8 @@ from aqt import mw, deckchooser
 from aqt.qt import *
 
 from .forms import search as search_form
-from . import note_field_tree, note_creation, note_field_chooser
-from .config import ConfigProperties
+from . import note_creation, note_field_chooser
+from .config.properties import ConfigProperties
 
 
 class Search(QWidget):
@@ -57,7 +57,7 @@ class Search(QWidget):
 
     def render_note_field_chooser(self):
         self.note_field_chooser_parent_widget = QWidget()
-        self.note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.note_field_chooser_parent_widget)
+        self.note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.note_field_chooser_parent_widget, self.update_note_fields)
         filter_on_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.FILTER_NOTE_FIELDS.value]
         if filter_on_note_fields:
             default_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.NOTE_FIELDS.value]
@@ -68,7 +68,6 @@ class Search(QWidget):
         self.form.filter_note_fields_checkbox.setChecked(self.note_field_selection_enabled)
 
         self.form.filter_note_fields_checkbox.stateChanged.connect(self.toggle_note_field_selection)
-        self.note_field_chooser.btn.clicked.connect(self.update_note_fields)
 
         self.update_init_search()
 
@@ -87,27 +86,6 @@ class Search(QWidget):
         self.note_field_selection_enabled = not self.note_field_selection_enabled
         self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
         self.update_init_search()
-
-    def render_note_field_tree(self):
-        if not self.note_field_items:
-            self.generate_note_field_data()
-
-        self.note_field_chooser = note_field_tree.NoteFieldTree(self.note_field_items, single_selection_mode=True, parent=self)
-        self.note_field_items = self.note_field_chooser.all_items
-        self.note_field_selected_items = self.note_field_chooser.get_all_items(True)
-        self.update_init_search()
-
-    def generate_note_field_data(self):
-        all_note_types = mw.col.models.all()
-        self.note_field_items = []
-        for note_type in all_note_types:
-            note_dict = {"name": note_type["name"], "state": Qt.Unchecked}
-            note_fields = []
-            for field in note_type["flds"]:
-                field_dict = {"name": field["name"], "state": Qt.Unchecked}
-                note_fields.append(field_dict)
-            note_dict["fields"] = note_fields
-            self.note_field_items.append(note_dict)
 
     ########################
     #######  Non-UI  #######

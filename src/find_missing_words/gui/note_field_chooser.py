@@ -3,18 +3,18 @@ from aqt.qt import *
 
 class NoteFieldChooser(QHBoxLayout):
     """
-    Button to invoke note and field tree, whose text displays current tree selection
-    Influenced by aqt.deckchooser.DeckChooser
+    Button to invoke note and field tree, whose text displays current tree selection.
+    The chooser is an interface to the note_field_tree.py and handles the data before and after choosing from the tree.
+    Influenced by aqt.deckchooser.DeckChooser.
     """
-    def __init__(self, mw, widget, single_selection_mode=False, selected_items=None):
+    def __init__(self, mw, widget, on_update_callback, single_selection_mode=False):
         QHBoxLayout.__init__(self)
-        if selected_items is None:
-            selected_items = []
-        self.widget = widget
-        self.single_selection_mode = single_selection_mode
         self.mw = mw
+        self.widget = widget
+        self.on_update_callback = on_update_callback
+        self.single_selection_mode = single_selection_mode
         self.note_field_items = []
-        self.selected_items = selected_items or []
+        self.selected_items = []
         self.btn_text = "None"
 
         self.setContentsMargins(0,0,0,0)
@@ -48,6 +48,16 @@ class NoteFieldChooser(QHBoxLayout):
                                 field["state"] = new_field["state"]
         self.update_value(selected_note_field_items)
 
+    def set_single_selected_item(self, note_field_item):
+        note_name = note_field_item["note"]
+        field_name = note_field_item["field"]
+        for note in self.note_field_items:
+            if note_name == note["name"]:
+                for field in note["fields"]:
+                    if field_name == field["name"]:
+                        field["state"] = True
+        self.update_value([note_field_item])
+
     def setup_btn(self):
         self.btn = QPushButton()
         if self.btn_text:
@@ -78,6 +88,7 @@ class NoteFieldChooser(QHBoxLayout):
         self.btn.setText(self.btn_text)
         self.btn.setToolTip(formatted_selected_items)
         self.selected_items = selected_items
+        self.on_update_callback()
 
     @staticmethod
     def format_btn_text(items):

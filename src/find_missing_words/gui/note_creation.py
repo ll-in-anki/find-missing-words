@@ -79,7 +79,7 @@ class NoteCreation(QWidget):
             self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
             self.form.note_pane_vbox.insertWidget(0, self.word_label)
         self.word_label.setText(word)
-        self.display_sentences(word)
+        # self.display_sentences(word)
 
     def find_sentences(self, word):
         """
