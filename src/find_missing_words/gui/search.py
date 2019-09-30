@@ -134,7 +134,10 @@ class Search(QWidget):
                 "known": known
             }
 
-        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text)
+        deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
+        note_fields = self.note_field_selection_enabled and self.note_field_selected_items
+
+        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text, deck_name)
         note_creation_window.show()
 
     @staticmethod

@@ -4,8 +4,9 @@ import functools
 from bs4 import BeautifulSoup as Soup
 from aqt import mw
 import aqt.editor
+import aqt.addcards
 from aqt.qt import *
-from anki.hooks import addHook, remHook
+from anki.hooks import addHook, runHook, remHook
 
 from .forms import note_creation as creation_form
 from . import word_select
@@ -13,13 +14,15 @@ from .config.properties import ConfigProperties
 
 
 class NoteCreation(QWidget):
-    def __init__(self, word_model, text, parent=None):
+    def __init__(self, word_model, text, deck_name, parent=None):
         super().__init__()
         self.parent = parent
         self.word_model = word_model
         self.text = text
+        self.deck_name = deck_name
         self.note_ids = []
         self.word_label = None
+        self.current_word = ""
         self.sentences = None
         self.mw = mw
 
@@ -77,6 +80,7 @@ class NoteCreation(QWidget):
             self.form.note_list_widget.addItem(sort_field)
 
     def display_word(self, word):
+        self.current_word = word
         if not self.word_label:
             self.word_label = QLabel()
             self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
@@ -153,8 +157,34 @@ class NoteCreation(QWidget):
             if btn.widget():
                 btn.widget().deleteLater()
 
+    def update_deck(self):
+        deck = mw.col.decks.byName(self.deck_name)
+        self.mw.col.conf["curDeck"] = deck["id"]
+        self.mw.col.decks.save(deck)
+        self.mw.reset()
+
+    def update_model(self, model):
+        self.mw.col.conf['curModel'] = model['id']
+        current_deck = self.mw.col.decks.current()
+        current_deck['mid'] = model['id']
+        self.mw.col.decks.save(current_deck)
+        runHook("currentModelChanged")
+        self.mw.reset()
+
     def create_note_from_preset(self, preset):
-        pass
+        word_dest = preset["preset_data"]["word_destination"]
+        model_name = word_dest["name"]
+        model = self.mw.col.models.byName(model_name)
+        if self.deck_name:
+            self.update_deck()
+        self.update_model(model)
+        add_cards_dialog = aqt.addcards.AddCards(mw)
+        note = mw.col.newNote()
+        field_name = word_dest["fields"][0]["name"]
+        field_index = [i for i, field in enumerate(model["flds"]) if field["name"] == field_name][0]
+        note.fields[field_index] = self.current_word
+        add_cards_dialog.editor.setNote(note)
+
 
     def close(self):
         remHook("load_word", self.load_word)
