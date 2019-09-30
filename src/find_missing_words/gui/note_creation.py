@@ -4,12 +4,12 @@ import functools
 from bs4 import BeautifulSoup as Soup
 from aqt import mw
 import aqt.editor
-import aqt.addcards
+# import aqt.addcards
 from aqt.qt import *
 from anki.hooks import addHook, runHook, remHook
 
 from .forms import note_creation as creation_form
-from . import word_select
+from . import word_select, add_note_widget
 from .config.properties import ConfigProperties
 
 
@@ -25,6 +25,7 @@ class NoteCreation(QWidget):
         self.current_word = ""
         self.sentences = None
         self.mw = mw
+        self.editor = None
 
         self.form = creation_form.Ui_Form()
         self.form.setupUi(self)
@@ -76,8 +77,7 @@ class NoteCreation(QWidget):
         for note_id in note_ids:
             self.note_ids.append(note_id)
             note = self.mw.col.getNote(note_id)
-            sort_field = self.reformat_sort_field(note.fields[0])
-            self.form.note_list_widget.addItem(sort_field)
+            self.form.note_list_widget.addItem(self.get_note_representation(note))
 
     def display_word(self, word):
         self.current_word = word
@@ -86,7 +86,6 @@ class NoteCreation(QWidget):
             self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
             self.form.note_pane_vbox.insertWidget(0, self.word_label)
         self.word_label.setText(word)
-        # self.display_sentences(word)
 
     def find_sentences(self, word):
         """
@@ -98,28 +97,30 @@ class NoteCreation(QWidget):
         return "\n".join([match.strip() for match in re.findall(pattern, self.text)])
 
     @staticmethod
-    def reformat_sort_field(text):
+    def get_note_representation(note):
         """
         Convert literal HTML markup to plaintext with proper spacing
-        :param text: HTML string
+        :param note: note which holds field values
         :return: text with no HTML
         """
-        text_with_spaced_divs = text.replace("<div>", " <div>")
+        sort_field = note.fields[0]
+        text_with_spaced_divs = sort_field.replace("<div>", " <div>")
         return Soup(text_with_spaced_divs, features="lxml").text
 
-    def display_note_editor(self):
+    def display_note_editor(self, _, note=False):
         """
         When note clicked in note_list_widget, reveal editor for the note
         """
         self.clear_note_editors()
 
         index = self.form.note_list_widget.currentRow()
-        note_id = self.note_ids[index]
-        note = self.mw.col.getNote(note_id)
+        if not note:
+            note_id = self.note_ids[index]
+            note = self.mw.col.getNote(note_id)
 
         widget = QWidget()
-        editor = aqt.editor.Editor(self.mw, widget, self)
-        editor.setNote(note, focusTo=0)
+        self.editor = aqt.editor.Editor(self.mw, widget, self)
+        self.editor.setNote(note, focusTo=0)
 
         self.form.note_stacked_widget.addWidget(widget)
         self.form.note_stacked_widget.setCurrentIndex(index)
@@ -140,6 +141,7 @@ class NoteCreation(QWidget):
             widget = self.form.note_stacked_widget.widget(i)
             self.form.note_stacked_widget.removeWidget(widget)
             widget.deleteLater()
+        self.delete_editor()
 
     def render_note_creation_preset_buttons(self):
         self.remove_note_creation_preset_buttons()
@@ -161,31 +163,56 @@ class NoteCreation(QWidget):
         deck = mw.col.decks.byName(self.deck_name)
         self.mw.col.conf["curDeck"] = deck["id"]
         self.mw.col.decks.save(deck)
-        self.mw.reset()
 
     def update_model(self, model):
         self.mw.col.conf['curModel'] = model['id']
         current_deck = self.mw.col.decks.current()
         current_deck['mid'] = model['id']
         self.mw.col.decks.save(current_deck)
-        runHook("currentModelChanged")
-        self.mw.reset()
 
     def create_note_from_preset(self, preset):
+        self.clear_note_editors()
         word_dest = preset["preset_data"]["word_destination"]
         model_name = word_dest["name"]
         model = self.mw.col.models.byName(model_name)
         if self.deck_name:
             self.update_deck()
         self.update_model(model)
-        add_cards_dialog = aqt.addcards.AddCards(mw)
-        note = mw.col.newNote()
+        note = self.mw.col.newNote()
         field_name = word_dest["fields"][0]["name"]
-        field_index = [i for i, field in enumerate(model["flds"]) if field["name"] == field_name][0]
-        note.fields[field_index] = self.current_word
-        add_cards_dialog.editor.setNote(note)
+        note[field_name] = self.current_word
+        self.create_list_item_for_preset(preset["preset_name"], note)
+        self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel)
+        self.form.note_stacked_widget.addWidget(self.editor)
 
+    def on_note_add(self, note):
+        self.clear_note_editors()
+        self.form.note_list_widget.takeItem(self.form.note_list_widget.currentRow())
+        self.note_ids.pop()
+        self.note_ids.append(note.id)
+        self.form.note_list_widget.addItem(self.get_note_representation(note))
+        row_to_select = self.form.note_list_widget.count() - 1
+        self.form.note_list_widget.setCurrentRow(row_to_select)
+
+    def on_note_cancel(self):
+        self.clear_note_editors()
+        self.form.note_list_widget.takeItem(self.form.note_list_widget.currentRow())
+        self.note_ids.pop()
+
+    def create_list_item_for_preset(self, preset_name, note):
+        if not self.note_ids:
+            self.form.note_list_widget.show()
+            self.form.note_stacked_widget.show()
+        self.note_ids.append(note.id)
+        self.form.note_list_widget.addItem(f"New \"{preset_name}\"")
+        row_to_select = self.form.note_list_widget.count() - 1
+        self.form.note_list_widget.setCurrentRow(row_to_select)
+
+    def delete_editor(self):
+        if hasattr(self, "editor"):
+            del self.editor
 
     def close(self):
         remHook("load_word", self.load_word)
+        self.delete_editor()
         super().close()
