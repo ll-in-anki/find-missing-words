@@ -4,9 +4,8 @@ import functools
 from bs4 import BeautifulSoup as Soup
 from aqt import mw
 import aqt.editor
-# import aqt.addcards
 from aqt.qt import *
-from anki.hooks import addHook, runHook, remHook
+from anki.hooks import addHook, remHook
 
 from .forms import note_creation as creation_form
 from . import word_select, add_note_widget
@@ -93,8 +92,8 @@ class NoteCreation(QWidget):
         :param word: word in the text
         :return: list of sentences including the word
         """
-        pattern = rf'[A-Za-z,"\' ]+{word}[A-Za-z,"\' ]+\.'
-        return "\n".join([match.strip() for match in re.findall(pattern, self.text)])
+        pattern = rf"[^.]*\s?{word}\s?[^.]*\."
+        return "\n".join([match.strip() for match in re.findall(pattern, self.text, re.IGNORECASE | re.MULTILINE)])
 
     @staticmethod
     def get_note_representation(note):
@@ -173,14 +172,22 @@ class NoteCreation(QWidget):
     def create_note_from_preset(self, preset):
         self.clear_note_editors()
         word_dest = preset["preset_data"]["word_destination"]
+        sentences_allowed = False
+        if "sentences_allowed" in preset["preset_data"]:
+            sentences_allowed = preset["preset_data"]["sentences_allowed"]
         model_name = word_dest["name"]
         model = self.mw.col.models.byName(model_name)
         if self.deck_name:
             self.update_deck()
         self.update_model(model)
         note = self.mw.col.newNote()
-        field_name = word_dest["fields"][0]["name"]
-        note[field_name] = self.current_word
+        word_dest_field_name = word_dest["fields"][0]["name"]
+        note[word_dest_field_name] = self.current_word
+        if sentences_allowed and "sentence_destination" in preset["preset_data"]:
+            sentence_dest = preset["preset_data"]["sentence_destination"]
+            if word_dest["name"] == sentence_dest["name"]:
+                sentence_dest_field_name = sentence_dest["fields"][0]["name"]
+                note[sentence_dest_field_name] = self.find_sentences(self.current_word)
         self.create_list_item_for_preset(preset["preset_name"], note)
         self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel)
         self.form.note_stacked_widget.addWidget(self.editor)

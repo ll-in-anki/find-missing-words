@@ -1,3 +1,5 @@
+import string
+
 from aqt.qt import *
 from anki.hooks import runHook
 
@@ -120,7 +122,11 @@ class Bubble(QLabel):
             self.setStyleSheet("background: lightgreen")
         super().paintEvent(event)
 
+    def strip_word(self):
+        self.word = self.word.translate(str.maketrans('', '', string.punctuation.replace('\'', '')))
+
     def mousePressEvent(self, ev: QMouseEvent) -> None:
+        self.strip_word()
         runHook("load_word", self.word, self.note_ids)
 
 

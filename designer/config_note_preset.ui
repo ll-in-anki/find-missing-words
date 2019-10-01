@@ -63,15 +63,21 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QWidget" name="word_destination_widget" native="true"/>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="sentence_checkbox">
      <property name="title">
       <string>Sentences</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
@@ -93,6 +99,9 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QWidget" name="sentence_destination_widget" native="true"/>
       </item>
      </layout>
     </widget>
