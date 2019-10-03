@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1201</width>
+    <width>1098</width>
     <height>590</height>
    </rect>
   </property>
@@ -27,28 +27,37 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Known words</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="label_4">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Key</string>
          </property>
-         <property name="styleSheet">
-          <string notr="true">background: lightgreen</string>
-         </property>
-         <property name="text">
-          <string>New Words</string>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Known words</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background: lightgreen</string>
+            </property>
+            <property name="text">
+             <string>New Words</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -90,7 +99,7 @@
          <item>
           <layout class="QHBoxLayout" name="create_hbox">
            <item>
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="create_label">
              <property name="text">
               <string>Create:</string>
              </property>
@@ -113,6 +122,13 @@
             </spacer>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="no_word_selected_tip">
+           <property name="text">
+            <string>Pick a word from the left pane to create a note</string>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">

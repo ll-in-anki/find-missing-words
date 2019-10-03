@@ -137,6 +137,7 @@ class WordSelect(QScrollArea):
         self.text = text
 
         widget = QWidget(self)
+        widget.setAutoFillBackground(True)
         self.setWidgetResizable(True)
         self.setWidget(widget)
 

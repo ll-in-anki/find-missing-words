@@ -31,7 +31,7 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.itemClicked.connect(self.display_note_editor)
         self.setup_note_widgets()
 
-        self.reset_hooks()
+        addHook("load_word", self.load_word)
         self.render_word_select()
 
     def setup_note_widgets(self):
@@ -39,6 +39,8 @@ class NoteCreation(QWidget):
         Don't show list and stacked widgets at first since word may not have any notes to display
         Keep size policy of widgets even if hidden so as to not alter positioning of nearby widgets
         """
+        self.form.create_label.hide()
+        self.form.no_word_selected_tip.show()
         self.form.note_list_widget.hide()
         self.form.note_stacked_widget.hide()
         list_policy = self.form.note_list_widget.sizePolicy()
@@ -47,10 +49,6 @@ class NoteCreation(QWidget):
         stack_policy = self.form.note_stacked_widget.sizePolicy()
         stack_policy.setRetainSizeWhenHidden(True)
         self.form.note_stacked_widget.setSizePolicy(stack_policy)
-
-    def reset_hooks(self):
-        remHook("load_word", self.load_word)
-        addHook("load_word", self.load_word)
 
     def render_word_select(self):
         self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, self)
@@ -67,6 +65,8 @@ class NoteCreation(QWidget):
         Display list of notes and their first fields
         :param note_ids: ids found in the original search
         """
+        self.form.create_label.show()
+        self.form.no_word_selected_tip.hide()
         if not note_ids:
             self.form.note_list_widget.hide()
             self.form.note_stacked_widget.hide()
@@ -110,7 +110,10 @@ class NoteCreation(QWidget):
         """
         When note clicked in note_list_widget, reveal editor for the note
         """
-        self.clear_note_editors()
+        if hasattr(self, "editor") and isinstance(self.editor, add_note_widget.AddNoteWidget):
+            self.editor.cancel()
+        else:
+            self.clear_note_editors()
 
         index = self.form.note_list_widget.currentRow()
         if not note:
@@ -155,7 +158,7 @@ class NoteCreation(QWidget):
     def remove_note_creation_preset_buttons(self):
         for i in range(self.form.create_btns_hbox.count()):
             btn = self.form.create_btns_hbox.takeAt(i)
-            if btn.widget():
+            if btn is not None and btn.widget():
                 btn.widget().deleteLater()
 
     def update_deck(self):
@@ -194,7 +197,7 @@ class NoteCreation(QWidget):
 
     def on_note_add(self, note):
         self.clear_note_editors()
-        self.form.note_list_widget.takeItem(self.form.note_list_widget.currentRow())
+        self.form.note_list_widget.takeItem(self.form.note_list_widget.count() - 1)
         self.note_ids.pop()
         self.note_ids.append(note.id)
         self.form.note_list_widget.addItem(self.get_note_representation(note))
@@ -203,8 +206,11 @@ class NoteCreation(QWidget):
 
     def on_note_cancel(self):
         self.clear_note_editors()
-        self.form.note_list_widget.takeItem(self.form.note_list_widget.currentRow())
+        self.form.note_list_widget.takeItem(self.form.note_list_widget.count() - 1)
         self.note_ids.pop()
+        if not self.note_ids:
+            self.form.note_list_widget.hide()
+            self.form.note_stacked_widget.hide()
 
     def create_list_item_for_preset(self, preset_name, note):
         if not self.note_ids:
@@ -219,7 +225,7 @@ class NoteCreation(QWidget):
         if hasattr(self, "editor"):
             del self.editor
 
-    def close(self):
+    def closeEvent(self, event):
         remHook("load_word", self.load_word)
         self.delete_editor()
-        super().close()
+        event.accept()

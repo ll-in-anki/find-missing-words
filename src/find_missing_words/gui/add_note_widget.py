@@ -197,10 +197,10 @@ class AddNoteWidget(QWidget):
         return QDialog.keyPressEvent(self, evt)
 
     def cancel(self):
-        self.on_cancel_callback()
         self.ifCanClose(self.close)
+        self.on_cancel_callback()
 
-    def close(self):
+    def closeEvent(self, event):
         remHook('reset', self.onReset)
         remHook('currentModelChanged', self.onModelChange)
         clearAudioQueue()
@@ -210,19 +210,10 @@ class AddNoteWidget(QWidget):
         self.deckChooser.cleanup()
         self.mw.maybeReset()
         aqt.dialogs.markClosed("AddCards")
-        super().close()
+        event.accept()
 
     def ifCanClose(self, onOk):
-        def afterSave():
-            ok = (self.editor.fieldsAreBlank() or
-                    askUser(_("Close and lose current input?"), defaultno=True))
-            if ok:
-                onOk()
-
-        self.editor.saveNow(afterSave)
-
-    def closeWithCallback(self, cb):
-        def doClose():
-            self._reject()
-            cb()
-        self.ifCanClose(doClose)
+        ok = (self.editor.fieldsAreBlank() or
+                askUser(_("Close and lose current input?"), defaultno=True))
+        if ok:
+            onOk()
