@@ -70,18 +70,13 @@
     ```json
     {
       "3d0c26": {
+        "preset_id": "3d0c26",
         "preset_name": "My Vocab Preset",
         "preset_data": {
-          "word_destination": {
-            "name": "Cloze",
-            "state": false,
-            "fields": [
-              {
-                "name": "Text",
-                "state:": true
-              }
-            ]
-          }
+          "note_type": "Cloze",
+          "word_destination": "Text",
+          "sentence_destination": "Extra",
+          "sentences_allowed": true
         }
       }
     }

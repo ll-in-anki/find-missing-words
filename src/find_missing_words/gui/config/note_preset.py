@@ -35,20 +35,29 @@ class NotePreset(QWidget):
                                                           choice=self.note_type,
                                                           callback=self.update_note_type)
         self.form.note_type_hbox.addWidget(self.note_type_chooser)
+        if "note_type" not in self.data:
+            self.data["note_type"] = self.note_type
+            self.update_preset()
 
     def render_word_destination_chooser(self):
         fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
+        choice = self.data.get("word_destination", fields[0])
         self.word_destination_chooser = list_chooser.ListChooser("Word Destination Field", fields,
-                                                                 choice=self.data.get("word_destination", fields[0]),
+                                                                 choice=choice,
                                                                  callback=self.update_word_destination)
         self.form.word_destination_hbox.addWidget(self.word_destination_chooser)
+        if "word_destination" not in self.data:
+            self.update_word_destination(choice)
 
     def render_sentence_destination_chooser(self):
         fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
+        choice = self.data.get("sentence_destination", fields[1])
         self.sentence_destination_chooser = list_chooser.ListChooser("Sentence Destination Field", fields,
-                                                                     choice=self.data.get("sentence_destination", fields[1]),
+                                                                     choice=choice,
                                                                      callback=self.update_sentence_destination)
         self.form.sentence_destination_hbox.addWidget(self.sentence_destination_chooser)
+        if "sentence_destination" not in self.data:
+            self.update_sentence_destination(choice)
 
     def toggle_sentences(self, new_state):
         self.data["sentences_allowed"] = new_state

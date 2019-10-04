@@ -7,12 +7,11 @@ class NoteFieldChooser(QHBoxLayout):
     The chooser is an interface to the note_field_tree.py and handles the data before and after choosing from the tree.
     Influenced by aqt.deckchooser.DeckChooser.
     """
-    def __init__(self, mw, widget, on_update_callback=None, single_selection_mode=False):
+    def __init__(self, mw, widget, on_update_callback=None):
         QHBoxLayout.__init__(self)
         self.mw = mw
         self.widget = widget
         self.on_update_callback = on_update_callback
-        self.single_selection_mode = single_selection_mode
         self.note_field_items = []
         self.selected_items = []
         self.btn_text = "None"
@@ -48,16 +47,6 @@ class NoteFieldChooser(QHBoxLayout):
                                 field["state"] = new_field["state"]
         self.update_value(selected_note_field_items)
 
-    def set_single_selected_item(self, note_field_item):
-        note_name = note_field_item["name"]
-        field_name = note_field_item["fields"]
-        for note in self.note_field_items:
-            if note_name == note["name"]:
-                for field in note["fields"]:
-                    if field_name == field["name"]:
-                        field["state"] = True
-        self.update_value(note_field_item)
-
     def setup_btn(self):
         self.btn = QPushButton()
         if self.btn_text:
@@ -74,7 +63,7 @@ class NoteFieldChooser(QHBoxLayout):
 
     def invoke_note_field_tree(self):
         from .note_field_tree import NoteFieldTree
-        ret = NoteFieldTree(self.note_field_items, self.single_selection_mode, self.widget)
+        ret = NoteFieldTree(self.note_field_items, self.widget)
         if ret.selected_items:
             self.note_field_items = ret.all_items
             self.update_value(ret.selected_items)
@@ -92,8 +81,6 @@ class NoteFieldChooser(QHBoxLayout):
             self.on_update_callback()
 
     def format_btn_text(self, items):
-        if self.single_selection_mode:
-            items = [items]
         note_field_list = []
         for note in items:
             name = note["name"]

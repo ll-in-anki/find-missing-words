@@ -14,20 +14,17 @@ class NoteFieldTree(QDialog):
     Dialog containing tree widget that organizes notes/models and their fields
     """
 
-    def __init__(self, note_fields, single_selection_mode=False, parent=None):
+    def __init__(self, note_fields, parent=None):
         super().__init__()
         self.mw = mw
         self.parent = parent or mw
         self.note_fields = note_fields
-        self.single_selection_mode = single_selection_mode
         self.form = tree_form.Ui_Dialog()
         self.form.setupUi(self)
 
         self.selected_items = []
         self.all_items = []
 
-        if self.single_selection_mode:
-            self.form.select_btn_row.hide()
         self.form.btn_expand_all.clicked.connect(self.expand_all)
         self.form.btn_expand_none.clicked.connect(self.expand_none)
         self.form.btn_select_all.clicked.connect(self.select_all)
@@ -56,23 +53,6 @@ class NoteFieldTree(QDialog):
             items.append(note_dict)
         return items
 
-    def get_selected_items(self):
-        if self.single_selection_mode:
-            current_item = self.form.tree_widget.currentItem()
-            current_item_text = current_item.text(0)
-            parent_text = current_item.parent().text(0)
-            return {
-                "name": parent_text,
-                "state": False,
-                "fields": [
-                    {
-                        "name": current_item_text,
-                        "state:": True
-                    }
-                ]
-            }
-        return self.get_all_items(True)
-
     def select_all(self):
         for i in range(self.form.tree_widget.topLevelItemCount()):
             self.form.tree_widget.topLevelItem(i).setCheckState(0, Qt.Checked)
@@ -95,18 +75,12 @@ class NoteFieldTree(QDialog):
             note_tree_item = QTreeWidgetItem(self.form.tree_widget, [note["name"]])
             for field in note["fields"]:
                 field_tree_item = QTreeWidgetItem(note_tree_item, [field["name"]])
-                if not self.single_selection_mode:
-                    field_tree_item.setCheckState(0, field["state"])
-                else:
-                    field_tree_item.setSelected(field["state"])
-            if not self.single_selection_mode:
-                note_tree_item.setCheckState(0, note["state"])
-                note_tree_item.setFlags(note_tree_item.flags() | Qt.ItemIsAutoTristate)
-            else:
-                note_tree_item.setFlags(note_tree_item.flags() ^ Qt.ItemIsSelectable)
+                field_tree_item.setCheckState(0, field["state"])
+            note_tree_item.setCheckState(0, note["state"])
+            note_tree_item.setFlags(note_tree_item.flags() | Qt.ItemIsAutoTristate)
             note_tree_item.setExpanded(False)
 
     def accept(self):
         self.all_items = self.get_all_items()
-        self.selected_items = self.get_selected_items()
+        self.selected_items = self.get_all_items(True)
         super().accept()
