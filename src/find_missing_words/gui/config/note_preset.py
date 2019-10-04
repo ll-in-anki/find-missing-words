@@ -32,21 +32,21 @@ class NotePreset(QWidget):
     def render_note_type_chooser(self):
         note_types = [model["name"] for model in self.mw.col.models.all()]
         self.note_type_chooser = list_chooser.ListChooser("Note Type", note_types,
-                                                          choice=self.data.get("note_type", ""),
+                                                          choice=self.note_type,
                                                           callback=self.update_note_type)
         self.form.note_type_hbox.addWidget(self.note_type_chooser)
 
     def render_word_destination_chooser(self):
         fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
         self.word_destination_chooser = list_chooser.ListChooser("Word Destination Field", fields,
-                                                                 choice=self.data.get("word_destination", ""),
+                                                                 choice=self.data.get("word_destination", fields[0]),
                                                                  callback=self.update_word_destination)
         self.form.word_destination_hbox.addWidget(self.word_destination_chooser)
 
     def render_sentence_destination_chooser(self):
         fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
         self.sentence_destination_chooser = list_chooser.ListChooser("Sentence Destination Field", fields,
-                                                                     choice=self.data.get("sentence_destination", ""),
+                                                                     choice=self.data.get("sentence_destination", fields[1]),
                                                                      callback=self.update_sentence_destination)
         self.form.sentence_destination_hbox.addWidget(self.sentence_destination_chooser)
 
@@ -66,7 +66,9 @@ class NotePreset(QWidget):
         self.word_destination_chooser.set_choices(fields)
         self.update_word_destination(self.word_destination_chooser.choice)
         self.sentence_destination_chooser.set_choices(fields)
-        self.update_sentence_destination(self.word_destination_chooser.choice)
+        if len(fields) > 1:
+            self.sentence_destination_chooser.set_choice(self.sentence_destination_chooser.choices[1])
+        self.update_sentence_destination(self.sentence_destination_chooser.choice)
 
     def update_word_destination(self, choice):
         self.data["word_destination"] = choice
