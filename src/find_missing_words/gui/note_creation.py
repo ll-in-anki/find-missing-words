@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.hooks import addHook, remHook, runHook
 
 from .forms import note_creation as creation_form
-from . import word_select, add_note_widget
+from . import word_select, add_note_widget, utils
 from .config.properties import ConfigProperties
 
 
@@ -139,11 +139,7 @@ class NoteCreation(QWidget):
         """
         Close any aqt.Editor instances (usually just one)
         """
-        for i in reversed(range(self.form.note_stacked_widget.count())):
-            widget = self.form.note_stacked_widget.widget(i)
-            self.form.note_stacked_widget.removeWidget(widget)
-            widget.setParent(None)
-            widget.deleteLater()
+        utils.clear_stacked_widget(self.form.note_stacked_widget)
         self.delete_editor()
 
     def render_note_creation_preset_buttons(self):
@@ -157,10 +153,7 @@ class NoteCreation(QWidget):
             btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
 
     def remove_note_creation_preset_buttons(self):
-        for i in reversed(range(self.form.create_btns_hbox.count())):
-            btn = self.form.create_btns_hbox.takeAt(i)
-            if btn is not None and btn.widget():
-                btn.widget().setParent(None)
+        utils.clear_layout(self.form.create_btns_hbox)
 
     def update_deck(self):
         deck = mw.col.decks.byName(self.deck_name)

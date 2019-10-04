@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Find Mising Words Config</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

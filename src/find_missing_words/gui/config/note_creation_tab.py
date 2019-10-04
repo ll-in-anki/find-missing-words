@@ -4,6 +4,7 @@ from aqt import mw
 from aqt.qt import *
 
 from ..forms import config_note_creation_tab as note_creation_form
+from .. import utils
 from . import note_preset
 from .properties import ConfigProperties
 
@@ -91,8 +92,4 @@ class NoteCreationTab(QDialog):
         """
         Close any note creator preset widget instances (usually just one)
         """
-        for i in reversed(range(self.form.note_preset_stack.count())):
-            widget = self.form.note_preset_stack.widget(i)
-            if widget:
-                self.form.note_preset_stack.removeWidget(widget)
-                widget.setParent(None)
+        utils.clear_stacked_widget(self.form.note_preset_stack)

@@ -3,6 +3,8 @@ import string
 from aqt.qt import *
 from anki.hooks import runHook
 
+from . import utils
+
 
 class FlowLayout(QLayout):
     def __init__(self, parent=None, margin=-1, hspacing=-1, vspacing=-1):
@@ -13,10 +15,7 @@ class FlowLayout(QLayout):
         self.setContentsMargins(margin, margin, margin, margin)
 
     def clear(self):
-        for i in reversed(range(self.count())):
-            widget = self.itemAt(i).widget()
-            self.removeWidget(widget)
-            widget.setParent(None)
+        utils.clear_layout(self)
 
     def __del__(self):
         del self._items[:]
