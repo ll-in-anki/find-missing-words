@@ -9,7 +9,8 @@ from aqt.qt import *
 from anki.hooks import addHook, remHook
 
 from .forms import search as search_form
-from . import note_creation, note_field_chooser
+from .utils import note_field_chooser
+from .search_results import note_creation
 from .config.properties import ConfigProperties
 
 

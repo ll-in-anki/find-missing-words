@@ -3,7 +3,7 @@ import string
 from aqt.qt import *
 from anki.hooks import runHook
 
-from . import utils
+from .. import utils
 
 
 class FlowLayout(QLayout):

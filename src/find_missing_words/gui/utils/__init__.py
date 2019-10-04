@@ -1,3 +1,6 @@
+from . import *
+
+
 def clear_layout(layout):
     for i in reversed(range(layout.count())):
         widget = layout.itemAt(i).widget()

@@ -1,7 +1,7 @@
 from aqt import mw
 from aqt.qt import *
 
-from .. import list_chooser
+from ..utils import list_chooser
 from ..forms import config_note_preset as preset_form
 
 

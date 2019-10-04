@@ -1,7 +1,7 @@
 from aqt import mw, deckchooser
 from aqt.qt import *
 
-from .. import note_field_chooser
+from ..utils import note_field_chooser
 from ..forms import config_search_tab as search_form
 from .properties import ConfigProperties
 
@@ -54,7 +54,7 @@ class SearchTab(QWidget):
     def render_default_note_field_chooser(self):
         self.default_note_field_chooser_parent_widget = QWidget()
         self.default_note_field_chooser = note_field_chooser.NoteFieldChooser(mw,
-                                                                             self.default_note_field_chooser_parent_widget)
+                                                                              self.default_note_field_chooser_parent_widget)
         self.form.default_note_field_checkbox.setChecked(self.filter_note_fields)
         self.default_note_field_chooser_parent_widget.setEnabled(self.filter_note_fields)
         if self.default_note_fields:

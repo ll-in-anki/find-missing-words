@@ -1,6 +1,6 @@
 from aqt.qt import *
 
-from .forms import list_dialog as list_dialog_form
+from ..forms import list_dialog as list_dialog_form
 
 
 class ListDialog(QDialog):

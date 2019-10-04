@@ -7,9 +7,10 @@ import aqt.editor
 from aqt.qt import *
 from anki.hooks import addHook, remHook, runHook
 
-from .forms import note_creation as creation_form
-from . import word_select, add_note_widget, utils
-from .config.properties import ConfigProperties
+from ..config.properties import ConfigProperties
+from ..forms import note_creation as creation_form
+from .. import utils
+from . import add_note_widget, word_select
 
 
 class NoteCreation(QWidget):

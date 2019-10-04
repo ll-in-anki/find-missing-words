@@ -6,10 +6,14 @@ from anki.hooks import addHook, remHook, runHook
 from anki.utils import htmlToTextLine, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
-from .forms import add_note_widget as add_note_form
+from ..forms import add_note_widget as add_note_form
 
 
 class AddNoteWidget(QWidget):
+    """
+    Widget version of the original Anki Add Cards dialog.
+    Allows for nesting in parent widget.
+    """
     def __init__(self, mw, note=None, on_add_callback=None, on_cancel_callback=None):
         super().__init__()
         self.mw = mw
