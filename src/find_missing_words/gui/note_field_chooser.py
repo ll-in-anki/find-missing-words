@@ -7,7 +7,7 @@ class NoteFieldChooser(QHBoxLayout):
     The chooser is an interface to the note_field_tree.py and handles the data before and after choosing from the tree.
     Influenced by aqt.deckchooser.DeckChooser.
     """
-    def __init__(self, mw, widget, on_update_callback, single_selection_mode=False):
+    def __init__(self, mw, widget, on_update_callback=None, single_selection_mode=False):
         QHBoxLayout.__init__(self)
         self.mw = mw
         self.widget = widget
@@ -88,7 +88,8 @@ class NoteFieldChooser(QHBoxLayout):
         self.btn.setText(self.btn_text)
         self.btn.setToolTip(formatted_selected_items)
         self.selected_items = selected_items
-        self.on_update_callback()
+        if self.on_update_callback:
+            self.on_update_callback()
 
     def format_btn_text(self, items):
         if self.single_selection_mode:

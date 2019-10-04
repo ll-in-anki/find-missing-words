@@ -18,6 +18,7 @@ class NoteCreationTab(QDialog):
 
         self.form = note_creation_form.Ui_Form()
         self.form.setupUi(self)
+        self.clear_preset_widgets()
         self.presets = self.config[ConfigProperties.NOTE_CREATION_PRESETS.value]
         self.order = []
         self.render_note_creation_settings()
@@ -31,7 +32,12 @@ class NoteCreationTab(QDialog):
     def populate_presets(self):
         for preset_id in self.presets:
             self.order.append(preset_id)
-            self.form.note_preset_list_widget.addItem(self.presets[preset_id]["preset_name"])
+            preset = self.presets[preset_id]
+            self.form.note_preset_list_widget.addItem(preset["preset_name"])
+            note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset)
+            self.form.note_preset_stack.addWidget(note_preset_widget)
+        self.form.note_preset_list_widget.setCurrentRow(0)
+        self.display_preset()
 
     @staticmethod
     def generate_uuid():
@@ -46,17 +52,17 @@ class NoteCreationTab(QDialog):
             "preset_data": {}
         }
         self.presets[preset_id] = preset
-        mw.addonManager.writeConfig(__name__, self.config)
         self.order.append(preset_id)
         self.form.note_preset_list_widget.addItem(preset_name)
         self.current_index = self.form.note_preset_list_widget.count() - 1
         self.form.note_preset_list_widget.setCurrentRow(self.current_index)
+        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset)
+        self.form.note_preset_stack.addWidget(note_preset_widget)
         self.display_preset()
 
     def update_preset(self, preset):
         self.update_list(preset)
         self.presets[preset["preset_id"]] = preset
-        mw.addonManager.writeConfig(__name__, self.config)
 
     def update_list(self, preset):
         list_item = self.form.note_preset_list_widget.currentItem()
@@ -77,16 +83,17 @@ class NoteCreationTab(QDialog):
         self.order.pop(self.current_index)
         item = self.form.note_preset_list_widget.takeItem(self.current_index)
         del item
-        mw.addonManager.writeConfig(__name__, self.config)
 
     def display_preset(self):
-        self.clear_preset_widgets()
         self.current_index = self.form.note_preset_list_widget.currentRow()
-        preset_id = self.order[self.current_index]
-        preset = self.presets[preset_id]
-        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset, parent=self)
-        self.form.note_preset_stack.addWidget(note_preset_widget)
         self.form.note_preset_stack.setCurrentIndex(self.current_index)
+
+    def save_presets(self):
+        for i in reversed(range(self.form.note_preset_stack.count())):
+            note_preset_widget = self.form.note_preset_stack.widget(i)
+            preset = note_preset_widget.preset
+            self.presets[preset["preset_id"]] = preset
+            mw.addonManager.writeConfig(__name__, self.config)
 
     def clear_preset_widgets(self):
         """

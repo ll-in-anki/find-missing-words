@@ -22,7 +22,15 @@ class ConfigDialog(QDialog):
         self.render_tabs()
 
     def render_tabs(self):
-        tab_0 = search_tab.SearchTab(self.config)
-        tab_1 = NoteCreationTab(self.config)
-        self.form.tab_widget.addTab(tab_0, "Search")
-        self.form.tab_widget.addTab(tab_1, "Note Creation")
+        self.search_tab = search_tab.SearchTab(self.config)
+        self.note_creation_tab = NoteCreationTab(self.config)
+        self.form.tab_widget.addTab(self.search_tab, "Search")
+        self.form.tab_widget.addTab(self.note_creation_tab, "Note Creation")
+
+    def accept(self):
+        self.search_tab.set_default_deck()
+        self.search_tab.set_default_note_fields()
+        self.search_tab.set_default_deck_toggle()
+        self.search_tab.set_default_note_fields_toggle()
+        self.note_creation_tab.save_presets()
+        super().accept()

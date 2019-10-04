@@ -35,13 +35,14 @@ class SearchTab(QWidget):
         self.default_deck_chooser_parent_widget.setEnabled(self.filter_deck)
         if self.default_deck:
             self.default_deck_chooser.setDeckName(self.default_deck)
-        self.default_deck_chooser.deck.clicked.connect(self.set_default_deck)
         self.form.default_deck_checkbox.stateChanged.connect(self.toggle_default_deck)
         self.form.default_deck_hbox.addWidget(self.default_deck_chooser_parent_widget)
 
     def toggle_default_deck(self):
         self.filter_deck = not self.filter_deck
         self.default_deck_chooser_parent_widget.setEnabled(self.filter_deck)
+
+    def set_default_deck_toggle(self):
         self.config.update({ConfigProperties.FILTER_DECK.value: self.filter_deck})
         mw.addonManager.writeConfig(__name__, self.config)
 
@@ -53,8 +54,7 @@ class SearchTab(QWidget):
     def render_default_note_field_chooser(self):
         self.default_note_field_chooser_parent_widget = QWidget()
         self.default_note_field_chooser = note_field_chooser.NoteFieldChooser(mw,
-                                                                             self.default_note_field_chooser_parent_widget,
-                                                                             self.set_default_note_fields)
+                                                                             self.default_note_field_chooser_parent_widget)
         self.form.default_note_field_checkbox.setChecked(self.filter_note_fields)
         self.default_note_field_chooser_parent_widget.setEnabled(self.filter_note_fields)
         if self.default_note_fields:
@@ -65,6 +65,8 @@ class SearchTab(QWidget):
     def toggle_default_note_fields(self):
         self.filter_note_fields = not self.filter_note_fields
         self.default_note_field_chooser_parent_widget.setEnabled(self.filter_note_fields)
+
+    def set_default_note_fields_toggle(self):
         self.config.update({ConfigProperties.FILTER_NOTE_FIELDS.value: self.filter_note_fields})
         mw.addonManager.writeConfig(__name__, self.config)
 

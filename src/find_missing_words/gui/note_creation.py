@@ -168,23 +168,18 @@ class NoteCreation(QWidget):
 
     def create_note_from_preset(self, preset):
         self.clear_note_editors()
-        word_dest = preset["preset_data"]["word_destination"]
-        sentences_allowed = False
-        if "sentences_allowed" in preset["preset_data"]:
-            sentences_allowed = preset["preset_data"]["sentences_allowed"]
-        model_name = word_dest["name"]
-        model = self.mw.col.models.byName(model_name)
+        note_type = preset["preset_data"]["note_type"]
+        word_dest_field = preset["preset_data"]["word_destination"]
+        sentences_allowed = preset["preset_data"].get("sentences_allowed", False)
+        model = self.mw.col.models.byName(note_type)
         if self.deck_name:
             self.update_deck()
         self.update_model(model)
         note = self.mw.col.newNote()
-        word_dest_field_name = word_dest["fields"][0]["name"]
-        note[word_dest_field_name] = self.current_word
+        note[word_dest_field] = self.current_word
         if sentences_allowed and "sentence_destination" in preset["preset_data"]:
-            sentence_dest = preset["preset_data"]["sentence_destination"]
-            if word_dest["name"] == sentence_dest["name"]:
-                sentence_dest_field_name = sentence_dest["fields"][0]["name"]
-                note[sentence_dest_field_name] = self.find_sentences(self.current_word)
+            sentence_dest_field = preset["preset_data"]["sentence_destination"]
+            note[sentence_dest_field] = self.find_sentences(self.current_word)
         self.create_list_item_for_preset(preset["preset_name"], note)
         self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel)
         self.form.note_stacked_widget.addWidget(self.editor)
