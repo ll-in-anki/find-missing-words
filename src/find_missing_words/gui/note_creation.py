@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as Soup
 from aqt import mw
 import aqt.editor
 from aqt.qt import *
-from anki.hooks import addHook, remHook
+from anki.hooks import addHook, remHook, runHook
 
 from .forms import note_creation as creation_form
 from . import word_select, add_note_widget
@@ -139,9 +139,10 @@ class NoteCreation(QWidget):
         """
         Close any aqt.Editor instances (usually just one)
         """
-        for i in range(self.form.note_stacked_widget.count()):
+        for i in reversed(range(self.form.note_stacked_widget.count())):
             widget = self.form.note_stacked_widget.widget(i)
             self.form.note_stacked_widget.removeWidget(widget)
+            widget.setParent(None)
             widget.deleteLater()
         self.delete_editor()
 
@@ -156,10 +157,10 @@ class NoteCreation(QWidget):
             btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
 
     def remove_note_creation_preset_buttons(self):
-        for i in range(self.form.create_btns_hbox.count()):
+        for i in reversed(range(self.form.create_btns_hbox.count())):
             btn = self.form.create_btns_hbox.takeAt(i)
             if btn is not None and btn.widget():
-                btn.widget().deleteLater()
+                btn.widget().setParent(None)
 
     def update_deck(self):
         deck = mw.col.decks.byName(self.deck_name)
@@ -203,6 +204,7 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.addItem(self.get_note_representation(note))
         row_to_select = self.form.note_list_widget.count() - 1
         self.form.note_list_widget.setCurrentRow(row_to_select)
+        runHook("search_missing_words")
 
     def on_note_cancel(self):
         self.clear_note_editors()

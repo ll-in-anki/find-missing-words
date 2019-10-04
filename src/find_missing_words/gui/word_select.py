@@ -12,6 +12,12 @@ class FlowLayout(QLayout):
         self._items = []
         self.setContentsMargins(margin, margin, margin, margin)
 
+    def clear(self):
+        for i in reversed(range(self.count())):
+            widget = self.itemAt(i).widget()
+            self.removeWidget(widget)
+            widget.setParent(None)
+
     def __del__(self):
         del self._items[:]
 
@@ -135,6 +141,7 @@ class WordSelect(QScrollArea):
         super().__init__()
         self.parent = parent
         self.text = text
+        self.word_model = word_model
 
         widget = QWidget(self)
         widget.setAutoFillBackground(True)
@@ -142,13 +149,22 @@ class WordSelect(QScrollArea):
         self.setWidget(widget)
 
         widget.setMinimumWidth(50)
-        layout = FlowLayout(widget)
+        self.layout = FlowLayout(widget)
+        self.draw()
 
+    def set_word_model(self, word_model):
+        self.word_model = word_model
+
+    def reset(self):
+        self.layout.clear()
+        self.draw()
+
+    def draw(self):
         self.words = []
-        for word in text.split():
-            known = word_model[word]["known"]
-            note_ids = word_model[word]["note_ids"]
+        for word in self.text.split():
+            known = self.word_model[word]["known"]
+            note_ids = self.word_model[word]["note_ids"]
             word_bubble = Bubble(word, known, note_ids)
             word_bubble.setFixedWidth(word_bubble.sizeHint().width())
             self.words.append(word_bubble)
-            layout.addWidget(word_bubble)
+            self.layout.addWidget(word_bubble)

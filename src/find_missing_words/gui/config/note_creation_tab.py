@@ -83,7 +83,7 @@ class NoteCreationTab(QDialog):
         self.current_index = self.form.note_preset_list_widget.currentRow()
         preset_id = self.order[self.current_index]
         preset = self.presets[preset_id]
-        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset)
+        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset, parent=self)
         self.form.note_preset_stack.addWidget(note_preset_widget)
         self.form.note_preset_stack.setCurrentIndex(self.current_index)
 
@@ -91,8 +91,8 @@ class NoteCreationTab(QDialog):
         """
         Close any note creator preset widget instances (usually just one)
         """
-        for i in range(self.form.note_preset_stack.count()):
+        for i in reversed(range(self.form.note_preset_stack.count())):
             widget = self.form.note_preset_stack.widget(i)
             if widget:
                 self.form.note_preset_stack.removeWidget(widget)
-                widget.deleteLater()
+                widget.setParent(None)

@@ -6,6 +6,7 @@ Enter search queries and filter by decks, note types, and fields
 
 from aqt import mw, deckchooser
 from aqt.qt import *
+from anki.hooks import addHook, remHook
 
 from .forms import search as search_form
 from . import note_creation, note_field_chooser
@@ -22,16 +23,17 @@ class Search(QWidget):
 
         self.REPLACEMENT_STRING = "[[[WORD]]]"
 
-        self.results = []
         self.deck_selection_enabled = True
         self.note_field_selection_enabled = False
         self.note_field_items = self.note_field_selected_items = []
         self.selected_decks = []
         self.deck_name = ""
+        self.note_creation_window = None
 
         self.render_deck_chooser()
         self.render_note_field_chooser()
         self.form.search_button.clicked.connect(self.search)
+        addHook("search_missing_words", self.search)
 
     def render_deck_chooser(self):
         self.deck_chooser_parent_widget = QWidget()
@@ -118,7 +120,6 @@ class Search(QWidget):
 
     def search(self):
         # Search through fetched cards here
-        self.results.clear()
         self.update_init_search()
 
         text = self.form.text_area.toPlainText()
@@ -135,10 +136,14 @@ class Search(QWidget):
             }
 
         deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
-        note_fields = self.note_field_selection_enabled and self.note_field_selected_items
 
-        self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text, deck_name)
-        note_creation_window.show()
+        if not self.note_creation_window or not self.note_creation_window.isVisible():
+            self.reset_note_creation_window()
+            self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text, deck_name, parent=self)
+            note_creation_window.show()
+        else:
+            self.note_creation_window.word_select.set_word_model(word_model)
+            self.note_creation_window.word_select.reset()
 
     @staticmethod
     def search_formatter(encapsulated, field, term, with_space=True):
@@ -186,3 +191,11 @@ class Search(QWidget):
 
     def get_final_search(self, word):
         return self.init_query.replace(self.REPLACEMENT_STRING, word)
+
+    def closeEvent(self, event):
+        remHook("search_missing_words", self.search)
+        event.accept()
+
+    def reset_note_creation_window(self):
+        del self.note_creation_window
+        self.note_creation_window = None
