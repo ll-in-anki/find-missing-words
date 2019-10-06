@@ -4,6 +4,9 @@ from ..forms import list_dialog as list_dialog_form
 
 
 class ListDialog(QDialog):
+    """
+    Dialog which shows a list of strings and allows the user to pick one item
+    """
     def __init__(self, window_title, items, selected_item=None):
         super().__init__()
         self.form = list_dialog_form.Ui_Dialog()

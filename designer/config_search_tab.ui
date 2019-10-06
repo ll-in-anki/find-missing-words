@@ -71,15 +71,21 @@
    </item>
    <item>
     <widget class="QLabel" name="label_3">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
-      <string>Ignored words</string>
+      <string>Ignored words (coming soon)</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_4">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
-      <string notr="true">font-size: 11px; color: #191919</string>
+      <string notr="true">font-size: 11px</string>
      </property>
      <property name="text">
       <string>Words you know, but don't need cards for (separated by comma)</string>
@@ -88,6 +94,9 @@
    </item>
    <item>
     <widget class="QTextEdit" name="ignored_words_text_area">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="acceptRichText">
       <bool>false</bool>
      </property>

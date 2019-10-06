@@ -6,6 +6,9 @@ from ..forms import config_note_preset as preset_form
 
 
 class NotePreset(QWidget):
+    """
+    Interface to change a note preset, holds basic form fields and a callback fired on every change
+    """
     def __init__(self, config, preset, on_update_callback=None, parent=None):
         super().__init__()
         self.config = config
@@ -68,6 +71,12 @@ class NotePreset(QWidget):
         self.update_preset()
 
     def update_note_type(self, choice):
+        """
+        If note type is updated, the word and sentence fields must also stay updated so things don't break.
+        Select first field for word (by default) and second field for sentences so that they don't both go to the same
+        field and break things.
+        :param choice: note type/model string
+        """
         self.note_type = choice
         self.data["note_type"] = self.note_type
         self.update_preset()

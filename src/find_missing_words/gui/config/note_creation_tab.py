@@ -10,6 +10,11 @@ from .properties import ConfigProperties
 
 
 class NoteCreationTab(QDialog):
+    """
+    Config dialog tab for users to define where missing words (and the contextual sentences) are to go.
+    A preset holds a name, note type/model, and word destination.
+    If the user wants to save sentences, it will also save sentence destination.
+    """
     def __init__(self, config, parent=None):
         super().__init__()
         self.config = config
@@ -30,6 +35,9 @@ class NoteCreationTab(QDialog):
         self.form.btn_preset_remove.clicked.connect(self.remove_preset)
 
     def populate_presets(self):
+        """
+        Generate the list widget and the linked stacked widget which holds all the presets.
+        """
         for preset_id in self.presets:
             self.order.append(preset_id)
             preset = self.presets[preset_id]
@@ -41,6 +49,9 @@ class NoteCreationTab(QDialog):
 
     @staticmethod
     def generate_uuid():
+        """
+        Unique id given to each preset for easy addressing
+        """
         return str(uuid.uuid4().hex)[-6:]
 
     def add_preset(self):
@@ -65,6 +76,10 @@ class NoteCreationTab(QDialog):
         self.presets[preset["preset_id"]] = preset
 
     def update_list(self, preset):
+        """
+        Update preset text in the list widget on preset name change
+        :param preset: preset object
+        """
         list_item = self.form.note_preset_list_widget.currentItem()
         list_item.setText(preset["preset_name"])
 
@@ -89,6 +104,9 @@ class NoteCreationTab(QDialog):
         self.form.note_preset_stack.setCurrentIndex(self.current_index)
 
     def save_presets(self):
+        """
+        Save action from parent config dialog; save all presets from the stacked widget
+        """
         for i in reversed(range(self.form.note_preset_stack.count())):
             note_preset_widget = self.form.note_preset_stack.widget(i)
             preset = note_preset_widget.preset
@@ -97,6 +115,6 @@ class NoteCreationTab(QDialog):
 
     def clear_preset_widgets(self):
         """
-        Close any note creator preset widget instances (usually just one)
+        Close any note creator preset widget instances
         """
         utils.clear_stacked_widget(self.form.note_preset_stack)

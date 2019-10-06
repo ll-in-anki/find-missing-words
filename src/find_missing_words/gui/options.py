@@ -12,11 +12,18 @@ ADDON_NAME = "Find Missing Words"
 
 
 def invoke_config_window():
+    """
+    Launch custom GUI on config change instead of default Anki JSON editor
+    """
     mw.find_missing_words_config = config = ConfigDialog(mw)
     config.exec_()
 
 
 def initialize_config_window():
+    """
+    Add option for addon's config in Anki
+    :return:
+    """
     mw.addonManager.setConfigAction(__name__, invoke_config_window)
 
 

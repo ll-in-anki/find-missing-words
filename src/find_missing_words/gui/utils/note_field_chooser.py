@@ -34,6 +34,10 @@ class NoteFieldChooser(QHBoxLayout):
             self.note_field_items.append(note_dict)
 
     def set_selected_items(self, selected_note_field_items):
+        """
+        Merge note field tree with another note field tree of checked items
+        :param selected_note_field_items: note field tree with checked items
+        """
         for note in self.note_field_items:
             note_name = note["name"]
             fields = note["fields"]
@@ -69,6 +73,10 @@ class NoteFieldChooser(QHBoxLayout):
             self.update_value(ret.selected_items)
 
     def update_value(self, selected_items):
+        """
+        Make choice, update chooser button text with formatted text no longer than 15 chars
+        :param selected_items: note/field tree selection
+        """
         formatted_selected_items = self.format_btn_text(selected_items)
         if len(formatted_selected_items) > 15:
             self.btn_text = formatted_selected_items[:15] + '...'
@@ -80,7 +88,13 @@ class NoteFieldChooser(QHBoxLayout):
         if self.on_update_callback:
             self.on_update_callback()
 
-    def format_btn_text(self, items):
+    @staticmethod
+    def format_btn_text(items):
+        """
+        Format: Note Type (Field1, Field 2), Note Type 2, ...
+        :param items: note/field tree selection
+        :return: formatted string of the tree selection
+        """
         note_field_list = []
         for note in items:
             name = note["name"]

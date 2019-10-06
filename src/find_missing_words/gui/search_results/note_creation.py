@@ -1,3 +1,11 @@
+"""
+Second view of the addon: search results and note creation
+
+Displays the word and buttons to create notes based on presets.
+On word select, if notes currently exist for the word, show the basic editor.
+If no notes currently exist and a note is created from a preset, show the add notes form/editor.
+"""
+
 import re
 import functools
 
@@ -52,6 +60,10 @@ class NoteCreation(QWidget):
         self.form.note_stacked_widget.setSizePolicy(stack_policy)
 
     def render_word_select(self):
+        """
+        Load the left pane (word select) to display the search text and highlight missing words.
+        :return:
+        """
         self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, self)
         self.form.word_select_pane_vbox.addWidget(word_select_widget)
 
@@ -144,6 +156,11 @@ class NoteCreation(QWidget):
         self.delete_editor()
 
     def render_note_creation_preset_buttons(self):
+        """
+        If note creation presets were made in the config, show their buttons.
+        If no presets exist, show button to create them.
+        :return:
+        """
         self.remove_note_creation_preset_buttons()
         config = mw.addonManager.getConfig(__name__)
         presets = config[ConfigProperties.NOTE_CREATION_PRESETS.value]
@@ -182,6 +199,12 @@ class NoteCreation(QWidget):
         self.mw.col.decks.save(current_deck)
 
     def create_note_from_preset(self, preset):
+        """
+        Load note creation preset information into an AddNote widget.
+        Must update the current deck (if defined in search filter) and model so that the editor will display
+        the correct editor fields.
+        :param preset: preset passed in from button click
+        """
         self.clear_note_editors()
         note_type = preset["preset_data"]["note_type"]
         word_dest_field = preset["preset_data"]["word_destination"]
@@ -200,6 +223,11 @@ class NoteCreation(QWidget):
         self.form.note_stacked_widget.addWidget(self.editor)
 
     def on_note_add(self, note):
+        """
+        Note created in AddNote widget
+        Overwrite temp list item with new saved note; refresh word select pane.
+        :param note: new note saved into Anki
+        """
         self.clear_note_editors()
         self.form.note_list_widget.takeItem(self.form.note_list_widget.count() - 1)
         self.note_ids.pop()
@@ -218,6 +246,10 @@ class NoteCreation(QWidget):
             self.form.note_stacked_widget.hide()
 
     def create_list_item_for_preset(self, preset_name, note):
+        """
+        Create temporory list item for the temporary note. Will be overridden later on note add.
+        :param note: temporary note
+        """
         if not self.note_ids:
             self.form.note_list_widget.show()
             self.form.note_stacked_widget.show()
@@ -227,6 +259,9 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.setCurrentRow(row_to_select)
 
     def delete_editor(self):
+        """
+        Delete singleton editor object for memory management.
+        """
         if hasattr(self, "editor"):
             del self.editor
 

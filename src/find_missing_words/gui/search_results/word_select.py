@@ -1,3 +1,8 @@
+"""
+Module for the word select pane displayed on the left side of the search results window.
+Displays the text from the search window and highlights the words not found in the search query.
+"""
+
 import string
 
 from aqt.qt import *
@@ -7,6 +12,9 @@ from .. import utils
 
 
 class FlowLayout(QLayout):
+    """
+    Responsive layout for the words
+    """
     def __init__(self, parent=None, margin=-1, hspacing=-1, vspacing=-1):
         super().__init__(parent)
         self._hspacing = hspacing
@@ -110,6 +118,10 @@ class FlowLayout(QLayout):
 
 
 class Bubble(QLabel):
+    """
+    Word bubble
+    Highlight green if word not known
+    """
     def __init__(self, text, known, note_ids):
         super().__init__(text)
         self.word = text

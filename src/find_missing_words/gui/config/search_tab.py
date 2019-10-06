@@ -7,6 +7,10 @@ from .properties import ConfigProperties
 
 
 class SearchTab(QWidget):
+    """
+    Config tab to handle user preferences for search filters.
+    Holds config for default deck, default notes and fields, and ignored words.
+    """
     def __init__(self, config, parent=None):
         super().__init__()
         self.config = config

@@ -29,36 +29,11 @@
     ]
     ```
 
-### `ignored_words`
+### `ignored_words` (coming soon)
 
 - Type: `list[string]`
 - Description: list of words to ignore, even if you don't have notes for them
 - Example: `["I", "me", "the", "you"]`
-
-### `previous_filters`
-
-- Type: `list[dict]`
-- Description: List of 
-- Example:
-    ```json
-    [
-      {
-        "deck": "My French Deck",
-        "models": [
-          {
-            "name": "Cloze", 
-            "state": 1, 
-            "fields": [
-              {
-                "name": "Text", 
-                "state": 2
-              }
-            ]
-          }
-        ]
-      }
-    ]
-    ```
 
 ### Note Creation
 

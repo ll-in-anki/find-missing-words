@@ -120,7 +120,10 @@ class Search(QWidget):
         self.form.query_preview.setText(self.get_final_search("[Word]"))
 
     def search(self):
-        # Search through fetched cards here
+        """
+        Search through fetched cards here
+        Display search results in a new window (note creation and word select)
+        """
         self.update_init_search()
 
         text = self.form.text_area.toPlainText()
