@@ -9,7 +9,7 @@ from anki.hooks import addHook, remHook, runHook
 
 from ..config.properties import ConfigProperties
 from ..forms import note_creation as creation_form
-from .. import utils
+from .. import config, utils
 from . import add_note_widget, word_select
 
 
@@ -147,14 +147,28 @@ class NoteCreation(QWidget):
         self.remove_note_creation_preset_buttons()
         config = mw.addonManager.getConfig(__name__)
         presets = config[ConfigProperties.NOTE_CREATION_PRESETS.value]
-        for preset in presets.values():
-            text = preset["preset_name"]
-            btn = QPushButton(text)
-            self.form.create_btns_hbox.addWidget(btn)
-            btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
+        if not presets:
+            self.prompt_preset_config_dialog()
+        else:
+            for preset in presets.values():
+                text = preset["preset_name"]
+                btn = QPushButton(text)
+                self.form.create_btns_hbox.addWidget(btn)
+                btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
 
     def remove_note_creation_preset_buttons(self):
         utils.clear_layout(self.form.create_btns_hbox)
+
+    def prompt_preset_config_dialog(self):
+        btn = QPushButton("Define a note preset...")
+        btn.clicked.connect(self.display_note_creation_config)
+        self.form.create_btns_hbox.addWidget(btn)
+
+    def display_note_creation_config(self):
+        self.mw.find_missing_words_config = config_dialog = config.ConfigDialog(mw)
+        config_dialog.form.tab_widget.setCurrentIndex(1)
+        config_dialog.finished.connect(self.render_note_creation_preset_buttons)
+        config_dialog.exec_()
 
     def update_deck(self):
         deck = mw.col.decks.byName(self.deck_name)
