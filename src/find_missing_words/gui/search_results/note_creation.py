@@ -50,14 +50,19 @@ class NoteCreation(QWidget):
         """
         self.form.create_label.hide()
         self.form.no_word_selected_tip.show()
-        self.form.note_list_widget.hide()
-        self.form.note_stacked_widget.hide()
+        self.toggle_note_creation_widgets_visibility(False)
         list_policy = self.form.note_list_widget.sizePolicy()
         list_policy.setRetainSizeWhenHidden(True)
         self.form.note_list_widget.setSizePolicy(list_policy)
         stack_policy = self.form.note_stacked_widget.sizePolicy()
         stack_policy.setRetainSizeWhenHidden(True)
         self.form.note_stacked_widget.setSizePolicy(stack_policy)
+
+    def toggle_note_creation_widgets_visibility(self, visible):
+        self.form.note_list_widget.setVisible(visible)
+        self.form.note_stacked_widget.setVisible(visible)
+        self.form.notes_created_label.setVisible(visible)
+        self.form.note_editor_label.setVisible(visible)
 
     def render_word_select(self):
         """
@@ -81,11 +86,9 @@ class NoteCreation(QWidget):
         self.form.create_label.show()
         self.form.no_word_selected_tip.hide()
         if not note_ids:
-            self.form.note_list_widget.hide()
-            self.form.note_stacked_widget.hide()
+            self.toggle_note_creation_widgets_visibility(False)
             return
-        self.form.note_list_widget.show()
-        self.form.note_stacked_widget.show()
+        self.toggle_note_creation_widgets_visibility(True)
         for note_id in note_ids:
             self.note_ids.append(note_id)
             note = self.mw.col.getNote(note_id)
@@ -124,7 +127,9 @@ class NoteCreation(QWidget):
         When note clicked in note_list_widget, reveal editor for the note
         """
         if hasattr(self, "editor") and isinstance(self.editor, add_note_widget.AddNoteWidget):
-            self.editor.cancel()
+            can_close = self.editor.cancel()
+            if not can_close:
+                    return
         else:
             self.clear_note_editors()
 
@@ -164,20 +169,19 @@ class NoteCreation(QWidget):
         self.remove_note_creation_preset_buttons()
         config = mw.addonManager.getConfig(__name__)
         presets = config[ConfigProperties.NOTE_CREATION_PRESETS.value]
-        if not presets:
-            self.prompt_preset_config_dialog()
-        else:
-            for preset in presets.values():
-                text = preset["preset_name"]
-                btn = QPushButton(text)
-                self.form.create_btns_hbox.addWidget(btn)
-                btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
+        for preset in presets.values():
+            text = preset["preset_name"]
+            btn = QPushButton(text)
+            self.form.create_btns_hbox.addWidget(btn)
+            btn.clicked.connect(functools.partial(self.create_note_from_preset, preset))
+        self.prompt_preset_config_dialog()
 
     def remove_note_creation_preset_buttons(self):
         utils.clear_layout(self.form.create_btns_hbox)
 
     def prompt_preset_config_dialog(self):
-        btn = QPushButton("Define a note preset...")
+        btn = QPushButton("+")
+        btn.setToolTip("Define a new note preset")
         btn.clicked.connect(self.display_note_creation_config)
         self.form.create_btns_hbox.addWidget(btn)
 
@@ -205,7 +209,12 @@ class NoteCreation(QWidget):
         the correct editor fields.
         :param preset: preset passed in from button click
         """
-        self.clear_note_editors()
+        if hasattr(self, "editor") and isinstance(self.editor, add_note_widget.AddNoteWidget):
+            can_close = self.editor.cancel()
+            if not can_close:
+                return
+        else:
+            self.clear_note_editors()
         note_type = preset["preset_data"]["note_type"]
         word_dest_field = preset["preset_data"]["word_destination"]
         sentences_allowed = preset["preset_data"].get("sentences_allowed", False)
@@ -242,8 +251,7 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.takeItem(self.form.note_list_widget.count() - 1)
         self.note_ids.pop()
         if not self.note_ids:
-            self.form.note_list_widget.hide()
-            self.form.note_stacked_widget.hide()
+            self.toggle_note_creation_widgets_visibility(False)
 
     def create_list_item_for_preset(self, preset_name, note):
         """
@@ -251,8 +259,7 @@ class NoteCreation(QWidget):
         :param note: temporary note
         """
         if not self.note_ids:
-            self.form.note_list_widget.show()
-            self.form.note_stacked_widget.show()
+            self.toggle_note_creation_widgets_visibility(True)
         self.note_ids.append(note.id)
         self.form.note_list_widget.addItem(f"New \"{preset_name}\"")
         row_to_select = self.form.note_list_widget.count() - 1

@@ -101,7 +101,7 @@
            <item>
             <widget class="QLabel" name="create_label">
              <property name="text">
-              <string>Create:</string>
+              <string>Create from preset:</string>
              </property>
             </widget>
            </item>
@@ -131,12 +131,34 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <layout class="QHBoxLayout" name="note_editing_widgets">
            <item>
-            <widget class="QListWidget" name="note_list_widget"/>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QLabel" name="notes_created_label">
+               <property name="text">
+                <string>Notes Created</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="note_list_widget"/>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QStackedWidget" name="note_stacked_widget"/>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QLabel" name="note_editor_label">
+               <property name="text">
+                <string>Note Editor</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QStackedWidget" name="note_stacked_widget"/>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
