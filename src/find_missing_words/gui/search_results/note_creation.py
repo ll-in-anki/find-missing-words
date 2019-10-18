@@ -34,6 +34,7 @@ class NoteCreation(QWidget):
         self.sentences = None
         self.mw = mw
         self.editor = None
+        self.last_list_item = None
 
         self.form = creation_form.Ui_Form()
         self.form.setupUi(self)
@@ -122,17 +123,21 @@ class NoteCreation(QWidget):
         text_with_spaced_divs = sort_field.replace("<div>", " <div>")
         return Soup(text_with_spaced_divs, features="lxml").text
 
-    def display_note_editor(self, _, note=False):
+    def display_note_editor(self, item_clicked, note=False):
         """
         When note clicked in note_list_widget, reveal editor for the note
         """
+        if self.last_list_item == item_clicked:
+            return
         if hasattr(self, "editor") and isinstance(self.editor, add_note_widget.AddNoteWidget):
             can_close = self.editor.cancel()
             if not can_close:
-                    return
+                self.form.note_list_widget.setCurrentItem(self.last_list_item)
+                return
         else:
             self.clear_note_editors()
 
+        self.last_list_item = item_clicked
         index = self.form.note_list_widget.currentRow()
         if not note:
             note_id = self.note_ids[index]
@@ -244,12 +249,14 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.addItem(self.get_note_representation(note))
         row_to_select = self.form.note_list_widget.count() - 1
         self.form.note_list_widget.setCurrentRow(row_to_select)
+        self.last_list_item = self.form.note_list_widget.currentItem()
         runHook("search_missing_words")
 
     def on_note_cancel(self):
         self.clear_note_editors()
         self.form.note_list_widget.takeItem(self.form.note_list_widget.count() - 1)
         self.note_ids.pop()
+        self.last_list_item = None
         if not self.note_ids:
             self.toggle_note_creation_widgets_visibility(False)
 
@@ -264,6 +271,7 @@ class NoteCreation(QWidget):
         self.form.note_list_widget.addItem(f"New \"{preset_name}\"")
         row_to_select = self.form.note_list_widget.count() - 1
         self.form.note_list_widget.setCurrentRow(row_to_select)
+        self.last_list_item = self.form.note_list_widget.currentItem()
 
     def delete_editor(self):
         """
