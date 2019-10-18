@@ -127,14 +127,14 @@ class NoteCreation(QWidget):
         """
         When note clicked in note_list_widget, reveal editor for the note
         """
-        if self.last_list_item == item_clicked:
-            return
-        if hasattr(self, "editor") and isinstance(self.editor, add_note_widget.AddNoteWidget):
-            can_close = self.editor.cancel()
-            if not can_close:
-                self.form.note_list_widget.setCurrentItem(self.last_list_item)
+        if hasattr(self, "editor"):
+            if self.last_list_item == item_clicked:
                 return
-        else:
+            if isinstance(self.editor, add_note_widget.AddNoteWidget):
+                can_close = self.editor.cancel()
+                if not can_close:
+                    self.form.note_list_widget.setCurrentItem(self.last_list_item)
+                    return
             self.clear_note_editors()
 
         self.last_list_item = item_clicked
