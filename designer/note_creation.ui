@@ -87,6 +87,69 @@
    <item>
     <layout class="QVBoxLayout" name="note_pane_vbox">
      <item>
+      <widget class="QWidget" name="word_details" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="word_label">
+            <property name="styleSheet">
+             <string notr="true">font-size: 32px; font-weight: bold</string>
+            </property>
+            <property name="text">
+             <string>Word</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ignore_button">
+            <property name="styleSheet">
+             <string notr="true">font-size: 12px</string>
+            </property>
+            <property name="text">
+             <string>Ignore</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="note_field_label">
+          <property name="styleSheet">
+           <string notr="true">font-size: 12px</string>
+          </property>
+          <property name="text">
+           <string>Model/field filter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="deck_label">
+          <property name="styleSheet">
+           <string notr="true">font-size: 12px</string>
+          </property>
+          <property name="text">
+           <string>Deck filter</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QTabWidget" name="tab_widget">
        <property name="currentIndex">
         <number>0</number>
@@ -97,31 +160,33 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QHBoxLayout" name="create_hbox">
-           <item>
-            <widget class="QLabel" name="create_label">
-             <property name="text">
-              <string>Create from preset:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="create_btns_hbox"/>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+          <widget class="QWidget" name="create_hbox_2" native="true">
+           <layout class="QHBoxLayout" name="create_hbox">
+            <item>
+             <widget class="QLabel" name="create_label">
+              <property name="text">
+               <string>Create from preset:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="create_btns_hbox"/>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="no_word_selected_tip">

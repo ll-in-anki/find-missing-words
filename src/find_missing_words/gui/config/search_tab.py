@@ -25,12 +25,14 @@ class SearchTab(QWidget):
         self.load_config()
         self.render_default_deck_chooser()
         self.render_default_note_field_chooser()
+        self.populate_ignored_words()
 
     def load_config(self):
         self.filter_deck = self.config[ConfigProperties.FILTER_DECK.value]
         self.filter_note_fields = self.config[ConfigProperties.FILTER_NOTE_FIELDS.value]
         self.default_deck = self.config[ConfigProperties.DECK.value]
         self.default_note_fields = self.config[ConfigProperties.NOTE_FIELDS.value]
+        self.ignored_words = self.config[ConfigProperties.IGNORED_WORDS.value]
 
     def render_default_deck_chooser(self):
         self.default_deck_chooser_parent_widget = QWidget()
@@ -76,4 +78,14 @@ class SearchTab(QWidget):
     def set_default_note_fields(self):
         new_selected_items = self.default_note_field_chooser.selected_items
         self.config.update({"default_notes_and_fields": new_selected_items})
+        mw.addonManager.writeConfig(__name__, self.config)
+
+    def populate_ignored_words(self):
+        ignored_words_text = ", ".join(self.ignored_words)
+        self.form.ignored_words_text_area.setText(ignored_words_text)
+
+    def save_ignored_words(self):
+        text_area_words = set([word.strip().lower() for word in self.form.ignored_words_text_area.toPlainText().split(",")])
+        ignored_words = list(text_area_words)
+        self.config.update({ConfigProperties.IGNORED_WORDS.value: ignored_words})
         mw.addonManager.writeConfig(__name__, self.config)

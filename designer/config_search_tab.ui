@@ -72,17 +72,17 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
-      <string>Ignored words (coming soon)</string>
+      <string>Ignored words</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_4">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="styleSheet">
       <string notr="true">font-size: 11px</string>
@@ -95,7 +95,7 @@
    <item>
     <widget class="QTextEdit" name="ignored_words_text_area">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="acceptRichText">
       <bool>false</bool>
