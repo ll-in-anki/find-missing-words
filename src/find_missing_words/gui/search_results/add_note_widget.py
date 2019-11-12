@@ -199,7 +199,7 @@ class AddNoteWidget(QWidget):
             and self.editor.tags.hasFocus()):
             evt.accept()
             return
-        return QDialog.keyPressEvent(self, evt)
+        return super().keyPressEvent(evt)
 
     def cancel(self):
         can_close = self.confirm_close()
