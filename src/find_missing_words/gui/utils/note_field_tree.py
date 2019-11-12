@@ -1,7 +1,12 @@
+"""
+A hierarchical view for the relationship between note types and their fields.
+See docs/data-structures/note_field_tree.md for details on the data structure.
+"""
+
 from aqt import mw
 from aqt.qt import *
 
-from .forms import note_field_tree as tree_form
+from ..forms import note_field_tree as tree_form
 
 
 class NoteFieldTree(QDialog):
