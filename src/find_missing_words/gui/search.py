@@ -100,7 +100,6 @@ class Search(QWidget):
     #     os.system(command)
 
     def update_init_search(self):
-        # print("Update Init Search")
         deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
         note_fields = self.note_field_selection_enabled and self.note_field_selected_items
 
@@ -140,10 +139,11 @@ class Search(QWidget):
             }
 
         deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
+        note_fields = self.note_field_selection_enabled and self.note_field_selected_items
 
         if not self.note_creation_window or not self.note_creation_window.isVisible():
             self.reset_note_creation_window()
-            self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text, deck_name, parent=self)
+            self.note_creation_window = note_creation_window = note_creation.NoteCreation(word_model, text, deck_name, note_fields, parent=self)
             note_creation_window.show()
         else:
             self.note_creation_window.word_select.set_word_model(word_model)

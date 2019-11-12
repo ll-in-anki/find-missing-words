@@ -35,3 +35,7 @@ class ConfigDialog(QDialog):
         self.search_tab.set_default_note_fields_toggle()
         self.note_creation_tab.save_presets()
         super().accept()
+
+    def reject(self):
+        self.note_creation_tab.clear_preset_widgets()
+        super().reject()

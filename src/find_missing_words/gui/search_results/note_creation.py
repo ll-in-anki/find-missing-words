@@ -17,19 +17,23 @@ from anki.hooks import addHook, remHook, runHook
 
 from ..config.properties import ConfigProperties
 from ..forms import note_creation as creation_form
+from ..utils.note_field_chooser import NoteFieldChooser
 from .. import config, utils
 from . import add_note_widget, word_select
 
 
 class NoteCreation(QWidget):
-    def __init__(self, word_model, text, deck_name, parent=None):
+    def __init__(self, word_model, text, deck_name, note_fields, parent=None):
         super().__init__()
         self.parent = parent
         self.word_model = word_model
         self.text = text
         self.deck_name = deck_name
+        self.note_fields = note_fields
         self.note_ids = []
         self.word_label = None
+        self.deck_label = None
+        self.note_field_label = None
         self.current_word = ""
         self.sentences = None
         self.mw = mw
@@ -97,11 +101,26 @@ class NoteCreation(QWidget):
 
     def display_word(self, word):
         self.current_word = word
+        deck_name = self.deck_name or "All"
+        if self.note_fields:
+            note_fields = NoteFieldChooser.format_btn_text(self.note_fields)
+        else:
+            note_fields = "All"
+        if not self.note_field_label:
+            self.note_field_label = QLabel()
+            self.note_field_label.setStyleSheet("font-size: 12px")
+            self.form.note_pane_vbox.insertWidget(0, self.note_field_label)
+        if not self.deck_label:
+            self.deck_label = QLabel()
+            self.deck_label.setStyleSheet("font-size: 12px")
+            self.form.note_pane_vbox.insertWidget(0, self.deck_label)
         if not self.word_label:
             self.word_label = QLabel()
             self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
             self.form.note_pane_vbox.insertWidget(0, self.word_label)
         self.word_label.setText(word)
+        self.deck_label.setText("Deck filter: " + deck_name)
+        self.note_field_label.setText("Model/Field filter: " + note_fields)
 
     def find_sentences(self, word):
         """
@@ -194,7 +213,7 @@ class NoteCreation(QWidget):
         self.mw.find_missing_words_config = config_dialog = config.ConfigDialog(mw)
         config_dialog.form.tab_widget.setCurrentIndex(1)
         config_dialog.finished.connect(self.render_note_creation_preset_buttons)
-        config_dialog.exec_()
+        config_dialog.open()
 
     def update_deck(self):
         deck = mw.col.decks.byName(self.deck_name)
@@ -277,7 +296,8 @@ class NoteCreation(QWidget):
         """
         Delete singleton editor object for memory management.
         """
-        if hasattr(self, "editor"):
+        if hasattr(self, "editor") and self.editor is not None:
+            self.editor.cleanup()
             del self.editor
 
     def closeEvent(self, event):

@@ -208,7 +208,7 @@ class AddNoteWidget(QWidget):
             self.on_cancel_callback()
         return can_close
 
-    def closeEvent(self, event):
+    def cleanup(self):
         remHook('reset', self.onReset)
         remHook('currentModelChanged', self.onModelChange)
         clearAudioQueue()
@@ -217,7 +217,9 @@ class AddNoteWidget(QWidget):
         self.modelChooser.cleanup()
         self.deckChooser.cleanup()
         self.mw.maybeReset()
-        aqt.dialogs.markClosed("AddCards")
+
+    def closeEvent(self, event):
+        self.cleanup()
         event.accept()
 
     def confirm_close(self):

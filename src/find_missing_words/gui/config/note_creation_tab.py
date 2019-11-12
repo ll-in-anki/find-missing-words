@@ -117,4 +117,5 @@ class NoteCreationTab(QDialog):
         """
         Close any note creator preset widget instances
         """
+        self.form.note_preset_list_widget.clear()
         utils.clear_stacked_widget(self.form.note_preset_stack)
