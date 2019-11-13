@@ -131,20 +131,26 @@ class Bubble(QLabel):
         self.setCursor(Qt.PointingHandCursor)
 
     def paintEvent(self, event):
+        painter = QPainter(self)
+        rect = event.rect()
+        painter.eraseRect(rect)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        self.setStyleSheet("")
         if not self.known:
-            painter = QPainter(self)
-            painter.setRenderHint(QPainter.Antialiasing, True)
             painter.drawRoundedRect(
                 0, 0, self.width() - 1, self.height() - 1, 5, 5)
             self.setStyleSheet("background: lightgreen")
         super().paintEvent(event)
+
+    def ignore(self):
+        self.known = True
 
     def strip_word(self):
         self.word = self.word.translate(str.maketrans('', '', string.punctuation.replace('\'', '')))
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
         self.strip_word()
-        runHook("load_word", self.word, self.note_ids)
+        runHook("load_word", self.word, self.note_ids, self.known)
 
 
 class WordSelect(QScrollArea):
@@ -179,3 +185,10 @@ class WordSelect(QScrollArea):
             word_bubble.setFixedWidth(word_bubble.sizeHint().width())
             self.words.append(word_bubble)
             self.layout.addWidget(word_bubble)
+
+    def ignore_word(self, word):
+        for i in range(self.layout.count()):
+            word_bubble = self.layout.itemAt(i).widget()
+            if word.lower() == word_bubble.text().lower():
+                word_bubble.ignore()
+                word_bubble.update()

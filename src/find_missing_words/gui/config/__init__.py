@@ -33,6 +33,7 @@ class ConfigDialog(QDialog):
         self.search_tab.set_default_note_fields()
         self.search_tab.set_default_deck_toggle()
         self.search_tab.set_default_note_fields_toggle()
+        self.search_tab.save_ignored_words()
         self.note_creation_tab.save_presets()
         super().accept()
 

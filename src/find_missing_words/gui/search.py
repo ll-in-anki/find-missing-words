@@ -132,7 +132,9 @@ class Search(QWidget):
             query = self.get_final_search(word)
 
             found_note_ids = mw.col.findNotes(query)
-            known = len(found_note_ids) > 0
+            config = mw.addonManager.getConfig(__name__)
+            ignored_words = config[ConfigProperties.IGNORED_WORDS.value]
+            known = len(found_note_ids) > 0 or word.lower() in [ignored_word.lower() for ignored_word in ignored_words]
             word_model[word] = {
                 "note_ids": found_note_ids,
                 "known": known

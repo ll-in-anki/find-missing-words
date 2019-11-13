@@ -31,9 +31,6 @@ class NoteCreation(QWidget):
         self.deck_name = deck_name
         self.note_fields = note_fields
         self.note_ids = []
-        self.word_label = None
-        self.deck_label = None
-        self.note_field_label = None
         self.current_word = ""
         self.sentences = None
         self.mw = mw
@@ -43,6 +40,7 @@ class NoteCreation(QWidget):
         self.form = creation_form.Ui_Form()
         self.form.setupUi(self)
         self.form.note_list_widget.itemClicked.connect(self.display_note_editor)
+        self.form.ignore_button.clicked.connect(self.ignore_word)
         self.setup_note_widgets()
 
         addHook("load_word", self.load_word)
@@ -53,7 +51,7 @@ class NoteCreation(QWidget):
         Don't show list and stacked widgets at first since word may not have any notes to display
         Keep size policy of widgets even if hidden so as to not alter positioning of nearby widgets
         """
-        self.form.create_label.hide()
+        self.form.create_hbox_2.hide()
         self.form.no_word_selected_tip.show()
         self.toggle_note_creation_widgets_visibility(False)
         list_policy = self.form.note_list_widget.sizePolicy()
@@ -62,6 +60,7 @@ class NoteCreation(QWidget):
         stack_policy = self.form.note_stacked_widget.sizePolicy()
         stack_policy.setRetainSizeWhenHidden(True)
         self.form.note_stacked_widget.setSizePolicy(stack_policy)
+        self.form.word_details.hide()
 
     def toggle_note_creation_widgets_visibility(self, visible):
         self.form.note_list_widget.setVisible(visible)
@@ -77,18 +76,30 @@ class NoteCreation(QWidget):
         self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, self)
         self.form.word_select_pane_vbox.addWidget(word_select_widget)
 
-    def load_word(self, word, note_ids):
+    def load_word(self, word, note_ids, known):
         self.reset_list()
-        self.display_word(word)
+        self.display_word(word, known)
         self.populate_notes(note_ids)
         self.render_note_creation_preset_buttons()
+
+    def ignore_word(self):
+        config = mw.addonManager.getConfig(__name__)
+        ignored_word_set = set(config[ConfigProperties.IGNORED_WORDS.value])
+        ignored_word_set.add(self.current_word.lower())
+        config[ConfigProperties.IGNORED_WORDS.value] = sorted(list(ignored_word_set))
+        mw.addonManager.writeConfig(__name__, config)
+        self.word_select.ignore_word(self.current_word)
+        self.toggle_note_creation_widgets_visibility(False)
+        self.form.word_details.hide()
+        self.form.create_hbox_2.hide()
+        self.form.no_word_selected_tip.show()
 
     def populate_notes(self, note_ids):
         """
         Display list of notes and their first fields
         :param note_ids: ids found in the original search
         """
-        self.form.create_label.show()
+        self.form.create_hbox_2.show()
         self.form.no_word_selected_tip.hide()
         if not note_ids:
             self.toggle_note_creation_widgets_visibility(False)
@@ -99,28 +110,18 @@ class NoteCreation(QWidget):
             note = self.mw.col.getNote(note_id)
             self.form.note_list_widget.addItem(self.get_note_representation(note))
 
-    def display_word(self, word):
+    def display_word(self, word, known):
+        self.form.ignore_button.setEnabled(not known)
+        self.form.word_details.show()
         self.current_word = word
         deck_name = self.deck_name or "All"
         if self.note_fields:
             note_fields = NoteFieldChooser.format_btn_text(self.note_fields)
         else:
             note_fields = "All"
-        if not self.note_field_label:
-            self.note_field_label = QLabel()
-            self.note_field_label.setStyleSheet("font-size: 12px")
-            self.form.note_pane_vbox.insertWidget(0, self.note_field_label)
-        if not self.deck_label:
-            self.deck_label = QLabel()
-            self.deck_label.setStyleSheet("font-size: 12px")
-            self.form.note_pane_vbox.insertWidget(0, self.deck_label)
-        if not self.word_label:
-            self.word_label = QLabel()
-            self.word_label.setStyleSheet("font-size: 32px; font-weight: bold")
-            self.form.note_pane_vbox.insertWidget(0, self.word_label)
-        self.word_label.setText(word)
-        self.deck_label.setText("Deck filter: " + deck_name)
-        self.note_field_label.setText("Model/Field filter: " + note_fields)
+        self.form.word_label.setText(word)
+        self.form.deck_label.setText("Deck filter: " + deck_name)
+        self.form.note_field_label.setText("Model/Field filter: " + note_fields)
 
     def find_sentences(self, word):
         """
