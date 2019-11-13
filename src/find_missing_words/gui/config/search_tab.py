@@ -86,6 +86,6 @@ class SearchTab(QWidget):
 
     def save_ignored_words(self):
         text_area_words = set([word.strip().lower() for word in self.form.ignored_words_text_area.toPlainText().split(",")])
-        ignored_words = list(text_area_words)
+        ignored_words = sorted(list(text_area_words))
         self.config.update({ConfigProperties.IGNORED_WORDS.value: ignored_words})
         mw.addonManager.writeConfig(__name__, self.config)
