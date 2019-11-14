@@ -15,8 +15,8 @@ class AddNoteWidget(QWidget):
     Allows for nesting in parent widget.
     Not much changed other than the QWidget overrides.
     """
-    def __init__(self, mw, note=None, on_add_callback=None, on_cancel_callback=None):
-        super().__init__()
+    def __init__(self, mw, note=None, on_add_callback=None, on_cancel_callback=None, parent=None):
+        super().__init__(parent)
         self.mw = mw
         self.note = note
         self.on_add_callback = on_add_callback

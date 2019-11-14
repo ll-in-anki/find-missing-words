@@ -14,9 +14,7 @@ from .note_creation_tab import NoteCreationTab
 
 class ConfigDialog(QDialog):
     def __init__(self, parent=None):
-        super().__init__()
-        self.parent = parent
-        self.mw = mw
+        super().__init__(parent)
         self.config = mw.addonManager.getConfig(__name__)
         self.form = config_form.Ui_Dialog()
         self.form.setupUi(self)

@@ -22,10 +22,9 @@ from .. import config, utils
 from . import add_note_widget, word_select
 
 
-class NoteCreation(QWidget):
+class NoteCreation(QDialog):
     def __init__(self, word_model, text, deck_name, note_fields, parent=None):
-        super().__init__()
-        self.parent = parent
+        super().__init__(parent)
         self.word_model = word_model
         self.text = text
         self.deck_name = deck_name
@@ -37,7 +36,7 @@ class NoteCreation(QWidget):
         self.editor = None
         self.last_list_item = None
 
-        self.form = creation_form.Ui_Form()
+        self.form = creation_form.Ui_Dialog()
         self.form.setupUi(self)
         self.form.note_list_widget.itemClicked.connect(self.display_note_editor)
         self.form.ignore_button.clicked.connect(self.ignore_word)
@@ -73,7 +72,7 @@ class NoteCreation(QWidget):
         Load the left pane (word select) to display the search text and highlight missing words.
         :return:
         """
-        self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, self)
+        self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, parent=self)
         self.form.word_select_pane_vbox.addWidget(word_select_widget)
 
     def load_word(self, word, note_ids, known):
@@ -253,7 +252,7 @@ class NoteCreation(QWidget):
             sentence_dest_field = preset["preset_data"]["sentence_destination"]
             note[sentence_dest_field] = self.find_sentences(self.current_word)
         self.create_list_item_for_preset(preset["preset_name"], note)
-        self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel)
+        self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel, parent=self)
         self.form.note_stacked_widget.addWidget(self.editor)
 
     def on_note_add(self, note):

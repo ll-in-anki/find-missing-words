@@ -7,8 +7,8 @@ class ListDialog(QDialog):
     """
     Dialog which shows a list of strings and allows the user to pick one item
     """
-    def __init__(self, window_title, items, selected_item=None):
-        super().__init__()
+    def __init__(self, window_title, items, selected_item=None, parent=None):
+        super().__init__(parent)
         self.form = list_dialog_form.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(window_title)

@@ -8,8 +8,8 @@ class ListChooser(QPushButton):
     """
     Choose a single item from a list of strings
     """
-    def __init__(self, title, choices, choice=None, callback=None):
-        super().__init__()
+    def __init__(self, title, choices, choice=None, callback=None, parent=None):
+        super().__init__(parent)
         self.mw = mw
         self.title = title
         self.choices = choices
@@ -17,12 +17,6 @@ class ListChooser(QPushButton):
         self.callback = callback
         self.update_button()
         self.clicked.connect(self.on_choice_change)
-
-    def show(self):
-        self.show()
-
-    def hide(self):
-        self.hide()
 
     def set_choice(self, choice):
         self.choice = choice
@@ -36,7 +30,7 @@ class ListChooser(QPushButton):
         self.callback(self.choice)
 
     def on_choice_change(self):
-        returned_list = list_dialog.ListDialog(self.title, self.choices, self.choice)
+        returned_list = list_dialog.ListDialog(self.title, self.choices, self.choice, self.parent)
         if not returned_list.selected_item:
             return
         self.choice = returned_list.selected_item

@@ -10,12 +10,11 @@ class NotePreset(QWidget):
     Interface to change a note preset, holds basic form fields and a callback fired on every change
     """
     def __init__(self, config, preset, on_update_callback=None, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.config = config
         self.preset = preset
         self.data = preset["preset_data"]
         self.on_update_callback = on_update_callback
-        self.parent = parent
         self.mw = mw
         self.note_type = self.data.get("note_type", mw.col.models.current()["name"])
 
@@ -36,7 +35,8 @@ class NotePreset(QWidget):
         note_types = [model["name"] for model in self.mw.col.models.all()]
         self.note_type_chooser = list_chooser.ListChooser("Note Type", note_types,
                                                           choice=self.note_type,
-                                                          callback=self.update_note_type)
+                                                          callback=self.update_note_type,
+                                                          parent=self)
         self.form.note_type_hbox.addWidget(self.note_type_chooser)
         if "note_type" not in self.data:
             self.data["note_type"] = self.note_type
@@ -47,7 +47,8 @@ class NotePreset(QWidget):
         choice = self.data.get("word_destination", fields[0])
         self.word_destination_chooser = list_chooser.ListChooser("Word Destination Field", fields,
                                                                  choice=choice,
-                                                                 callback=self.update_word_destination)
+                                                                 callback=self.update_word_destination,
+                                                                 parent=self)
         self.form.word_destination_hbox.addWidget(self.word_destination_chooser)
         if "word_destination" not in self.data:
             self.update_word_destination(choice)
@@ -57,7 +58,8 @@ class NotePreset(QWidget):
         choice = self.data.get("sentence_destination", fields[1])
         self.sentence_destination_chooser = list_chooser.ListChooser("Sentence Destination Field", fields,
                                                                      choice=choice,
-                                                                     callback=self.update_sentence_destination)
+                                                                     callback=self.update_sentence_destination,
+                                                                     parent=self)
         self.form.sentence_destination_hbox.addWidget(self.sentence_destination_chooser)
         if "sentence_destination" not in self.data:
             self.update_sentence_destination(choice)

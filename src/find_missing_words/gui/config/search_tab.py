@@ -12,11 +12,8 @@ class SearchTab(QWidget):
     Holds config for default deck, default notes and fields, and ignored words.
     """
     def __init__(self, config, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.config = config
-        self.parent = parent
-        self.mw = mw
-
         self.default_deck = ""
         self.default_note_fields = []
 
@@ -36,7 +33,7 @@ class SearchTab(QWidget):
 
     def render_default_deck_chooser(self):
         self.default_deck_chooser_parent_widget = QWidget()
-        self.default_deck_chooser = deckchooser.DeckChooser(mw, self.default_deck_chooser_parent_widget)
+        self.default_deck_chooser = deckchooser.DeckChooser(mw, self.default_deck_chooser_parent_widget, label=False)
         self.form.default_deck_checkbox.setChecked(self.filter_deck)
         self.default_deck_chooser_parent_widget.setEnabled(self.filter_deck)
         if self.default_deck:
@@ -58,18 +55,17 @@ class SearchTab(QWidget):
         mw.addonManager.writeConfig(__name__, self.config)
 
     def render_default_note_field_chooser(self):
-        self.default_note_field_chooser_parent_widget = QWidget()
-        self.default_note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.default_note_field_chooser_parent_widget)
+        self.default_note_field_chooser = note_field_chooser.NoteFieldChooser(parent=self)
         self.form.default_note_field_checkbox.setChecked(self.filter_note_fields)
-        self.default_note_field_chooser_parent_widget.setEnabled(self.filter_note_fields)
+        self.default_note_field_chooser.setEnabled(self.filter_note_fields)
         if self.default_note_fields:
             self.default_note_field_chooser.set_selected_items(self.default_note_fields)
         self.form.default_note_field_checkbox.stateChanged.connect(self.toggle_default_note_fields)
-        self.form.default_note_field_hbox.addWidget(self.default_note_field_chooser_parent_widget)
+        self.form.default_note_field_hbox.addWidget(self.default_note_field_chooser)
 
     def toggle_default_note_fields(self):
         self.filter_note_fields = not self.filter_note_fields
-        self.default_note_field_chooser_parent_widget.setEnabled(self.filter_note_fields)
+        self.default_note_field_chooser.setEnabled(self.filter_note_fields)
 
     def set_default_note_fields_toggle(self):
         self.config.update({ConfigProperties.FILTER_NOTE_FIELDS.value: self.filter_note_fields})

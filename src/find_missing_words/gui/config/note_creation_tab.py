@@ -16,11 +16,8 @@ class NoteCreationTab(QDialog):
     If the user wants to save sentences, it will also save sentence destination.
     """
     def __init__(self, config, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.config = config
-        self.parent = parent
-        self.mw = mw
-
         self.form = note_creation_form.Ui_Form()
         self.form.setupUi(self)
         self.clear_preset_widgets()
@@ -42,7 +39,7 @@ class NoteCreationTab(QDialog):
             self.order.append(preset_id)
             preset = self.presets[preset_id]
             self.form.note_preset_list_widget.addItem(preset["preset_name"])
-            note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset)
+            note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset, parent=self)
             self.form.note_preset_stack.addWidget(note_preset_widget)
         self.form.note_preset_list_widget.setCurrentRow(0)
         self.display_preset()
@@ -67,7 +64,7 @@ class NoteCreationTab(QDialog):
         self.form.note_preset_list_widget.addItem(preset_name)
         self.current_index = self.form.note_preset_list_widget.count() - 1
         self.form.note_preset_list_widget.setCurrentRow(self.current_index)
-        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset)
+        note_preset_widget = note_preset.NotePreset(self.config, preset, self.update_preset, parent=self)
         self.form.note_preset_stack.addWidget(note_preset_widget)
         self.display_preset()
 

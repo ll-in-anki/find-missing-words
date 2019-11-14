@@ -14,12 +14,11 @@ from .search_results import note_creation
 from .config.properties import ConfigProperties
 
 
-class Search(QWidget):
+class Search(QDialog):
     def __init__(self, parent=None):
-        super().__init__()
-        self.parent = parent or mw
+        super().__init__(parent)
         # Set up UI from pre-generated UI form:
-        self.form = search_form.Ui_Form()
+        self.form = search_form.Ui_Dialog()
         self.form.setupUi(self)
 
         self.REPLACEMENT_STRING = "[[[WORD]]]"
@@ -59,22 +58,21 @@ class Search(QWidget):
         self.update_init_search()
 
     def render_note_field_chooser(self):
-        self.note_field_chooser_parent_widget = QWidget()
-        self.note_field_chooser = note_field_chooser.NoteFieldChooser(mw, self.note_field_chooser_parent_widget, self.update_note_fields)
+        self.note_field_chooser = note_field_chooser.NoteFieldChooser(on_update_callback=self.update_note_fields, parent=self)
         filter_on_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.FILTER_NOTE_FIELDS.value]
         if filter_on_note_fields:
             default_note_fields = mw.addonManager.getConfig(__name__)[ConfigProperties.NOTE_FIELDS.value]
             self.note_field_chooser.set_selected_items(default_note_fields)
             self.note_field_selected_items = default_note_fields
             self.note_field_selection_enabled = True
-        self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
+        self.note_field_chooser.setEnabled(self.note_field_selection_enabled)
         self.form.filter_note_fields_checkbox.setChecked(self.note_field_selection_enabled)
 
         self.form.filter_note_fields_checkbox.stateChanged.connect(self.toggle_note_field_selection)
 
         self.update_init_search()
 
-        self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser_parent_widget)
+        self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser)
 
     def update_note_fields(self):
         self.note_field_selected_items = self.note_field_chooser.selected_items
@@ -87,7 +85,7 @@ class Search(QWidget):
 
     def toggle_note_field_selection(self):
         self.note_field_selection_enabled = not self.note_field_selection_enabled
-        self.note_field_chooser.btn.setEnabled(self.note_field_selection_enabled)
+        self.note_field_chooser.setEnabled(self.note_field_selection_enabled)
         self.update_init_search()
 
     ########################

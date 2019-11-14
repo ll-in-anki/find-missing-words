@@ -15,9 +15,7 @@ class NoteFieldTree(QDialog):
     """
 
     def __init__(self, note_fields, parent=None):
-        super().__init__()
-        self.mw = mw
-        self.parent = parent or mw
+        super().__init__(parent)
         self.note_fields = note_fields
         self.form = tree_form.Ui_Dialog()
         self.form.setupUi(self)

@@ -155,8 +155,7 @@ class Bubble(QLabel):
 
 class WordSelect(QScrollArea):
     def __init__(self, text, word_model, parent=None):
-        super().__init__()
-        self.parent = parent
+        super().__init__(parent)
         self.text = text
         self.word_model = word_model
 

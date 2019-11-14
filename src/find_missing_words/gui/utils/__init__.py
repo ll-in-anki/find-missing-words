@@ -14,3 +14,9 @@ def clear_stacked_widget(stacked_widget):
         if widget:
             stacked_widget.removeWidget(widget)
             widget.deleteLater()
+
+
+def print_object_tree(obj, indent=0):
+    print("  " * indent, obj)
+    for child in obj.children():
+        print_object_tree(child, indent+1)
