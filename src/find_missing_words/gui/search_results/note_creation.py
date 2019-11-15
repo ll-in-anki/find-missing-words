@@ -128,17 +128,19 @@ class NoteCreation(QDialog):
         :param word: word in the text
         :return: list of sentences including the word
         """
-        pattern = rf"[^.]*\s?{word}\s?[^.]*\."
-        s = "\n".join([match.strip() for match in re.findall(pattern, self.text, re.IGNORECASE | re.MULTILINE)])
+        sentence_pattern = rf"[^.?!]*\s?{word}\s?[^.?!]*[.?!]"
+        word_regex = re.compile(re.escape(word), re.IGNORECASE)
+        s = "\n".join(
+            [match.strip() for match in re.findall(sentence_pattern, self.text, re.IGNORECASE | re.MULTILINE)])
         if sentence_type == SentenceTypes.BLANK.name:
-            s = s.replace(word, "__")
+            s = word_regex.sub("__", s)
         elif sentence_type == SentenceTypes.MISSING.name:
-            s = s.replace(word, "")
+            s = word_regex.sub("", s)
         elif sentence_type == SentenceTypes.CLOZE_REPEAT.name:
-            s = s.replace(word, "{{c1::" + word + "}}")
+            s = word_regex.sub(r"{{c1::\g<0>}}", s)
         elif sentence_type == SentenceTypes.CLOZE_SEPARATE.name:
             self.word_occurence_count = 0
-            s = re.sub(word, self.replace_with_numbered_cloze, s)
+            s = re.sub(word_regex, self.replace_with_numbered_cloze, s)
         return s
 
     def replace_with_numbered_cloze(self, match):
@@ -154,7 +156,7 @@ class NoteCreation(QDialog):
         """
         sort_field = note.fields[0]
         text_with_spaced_divs = sort_field.replace("<div>", " <div>")
-        return Soup(text_with_spaced_divs, features="lxml").text
+        return Soup(text_with_spaced_divs, features="html.parser").text
 
     def display_note_editor(self, item_clicked, note=False):
         """
