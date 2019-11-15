@@ -11,6 +11,7 @@ class ListChooser(QPushButton):
     def __init__(self, title, choices, choice=None, callback=None, parent=None):
         super().__init__(parent)
         self.mw = mw
+        self.parent = parent
         self.title = title
         self.choices = choices
         self.choice = choice
@@ -25,7 +26,7 @@ class ListChooser(QPushButton):
 
     def set_choices(self, choices):
         self.choices = choices
-        self.choice = None
+        self.choice = choices[0]
         self.update_button()
         self.callback(self.choice)
 
@@ -40,5 +41,8 @@ class ListChooser(QPushButton):
     def update_button(self):
         if not self.choice:
             self.choice = self.choices[0]
-        self.setText(self.choice)
+        self.text = self.choice
+        if len(self.text) > 15:
+            self.text = self.text[:15] + "..."
+        self.setText(self.text)
         self.mw.reset()

@@ -9,3 +9,11 @@ class ConfigProperties(enum.Enum):
     IGNORED_WORDS = "ignored_words"
     PREVIOUS_FILTERS = "previous_filters"
     NOTE_CREATION_PRESETS = "note_creation_presets"
+
+
+class SentenceTypes(enum.Enum):
+    WHOLE = "Whole sentence"
+    BLANK = "Word blanked out"
+    MISSING = "Word removed"
+    CLOZE_REPEAT = "Word clozed (reuse cloze for all occurrences)"
+    CLOZE_SEPARATE = "Word clozed (separate cloze for each occurrence)"

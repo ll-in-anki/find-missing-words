@@ -1,3 +1,5 @@
+import uuid
+
 from . import *
 
 
@@ -20,3 +22,10 @@ def print_object_tree(obj, indent=0):
     print("  " * indent, obj)
     for child in obj.children():
         print_object_tree(child, indent+1)
+
+
+def generate_uuid():
+    """
+    Unique id given to each preset for easy addressing
+    """
+    return str(uuid.uuid4().hex)[-6:]

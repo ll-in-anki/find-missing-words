@@ -1,4 +1,3 @@
-import uuid
 
 from aqt import mw
 from aqt.qt import *
@@ -44,20 +43,15 @@ class NoteCreationTab(QDialog):
         self.form.note_preset_list_widget.setCurrentRow(0)
         self.display_preset()
 
-    @staticmethod
-    def generate_uuid():
-        """
-        Unique id given to each preset for easy addressing
-        """
-        return str(uuid.uuid4().hex)[-6:]
-
     def add_preset(self):
         preset_name = "New Preset"
-        preset_id = self.generate_uuid()
+        preset_id = utils.generate_uuid()
         preset = {
             "preset_id": preset_id,
             "preset_name": preset_name,
-            "preset_data": {}
+            "preset_data": {
+                "sentences_allowed": False,
+            },
         }
         self.presets[preset_id] = preset
         self.order.append(preset_id)

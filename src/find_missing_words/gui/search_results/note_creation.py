@@ -15,7 +15,7 @@ import aqt.editor
 from aqt.qt import *
 from anki.hooks import addHook, remHook, runHook
 
-from ..config.properties import ConfigProperties
+from ..config.properties import ConfigProperties, SentenceTypes
 from ..forms import note_creation as creation_form
 from ..utils.note_field_chooser import NoteFieldChooser
 from .. import config, utils
@@ -122,14 +122,28 @@ class NoteCreation(QDialog):
         self.form.deck_label.setText("Deck filter: " + deck_name)
         self.form.note_field_label.setText("Model/Field filter: " + note_fields)
 
-    def find_sentences(self, word):
+    def find_sentences(self, word, sentence_type):
         """
         Find sentences surrounding a word in the original text
         :param word: word in the text
         :return: list of sentences including the word
         """
         pattern = rf"[^.]*\s?{word}\s?[^.]*\."
-        return "\n".join([match.strip() for match in re.findall(pattern, self.text, re.IGNORECASE | re.MULTILINE)])
+        s = "\n".join([match.strip() for match in re.findall(pattern, self.text, re.IGNORECASE | re.MULTILINE)])
+        if sentence_type == SentenceTypes.BLANK.name:
+            s = s.replace(word, "__")
+        elif sentence_type == SentenceTypes.MISSING.name:
+            s = s.replace(word, "")
+        elif sentence_type == SentenceTypes.CLOZE_REPEAT.name:
+            s = s.replace(word, "{{c1::" + word + "}}")
+        elif sentence_type == SentenceTypes.CLOZE_SEPARATE.name:
+            self.word_occurence_count = 0
+            s = re.sub(word, self.replace_with_numbered_cloze, s)
+        return s
+
+    def replace_with_numbered_cloze(self, match):
+        self.word_occurence_count += 1
+        return "{{c" + str(self.word_occurence_count) + "::" + match.group(0) + "}}"
 
     @staticmethod
     def get_note_representation(note):
@@ -248,9 +262,13 @@ class NoteCreation(QDialog):
         self.update_model(model)
         note = self.mw.col.newNote()
         note[word_dest_field] = self.current_word
-        if sentences_allowed and "sentence_destination" in preset["preset_data"]:
-            sentence_dest_field = preset["preset_data"]["sentence_destination"]
-            note[sentence_dest_field] = self.find_sentences(self.current_word)
+        if sentences_allowed:
+            sentence_presets = preset["preset_data"]["sentence_presets"]
+            for sentence_preset_id in sentence_presets:
+                sentence_preset = sentence_presets[sentence_preset_id]
+                sentence_dest_field = sentence_preset["sentence_destination"]
+                sentence_type = sentence_preset["sentence_type"]
+                note[sentence_dest_field] = self.find_sentences(self.current_word, sentence_type)
         self.create_list_item_for_preset(preset["preset_name"], note)
         self.editor = add_note_widget.AddNoteWidget(mw, note, self.on_note_add, self.on_note_cancel, parent=self)
         self.form.note_stacked_widget.addWidget(self.editor)

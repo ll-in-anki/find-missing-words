@@ -50,9 +50,29 @@
         "preset_data": {
           "note_type": "Cloze",
           "word_destination": "Text",
-          "sentence_destination": "Extra",
-          "sentences_allowed": true
-        }
+          "sentences_allowed": true,
+          "sentence_presets": {
+              "2t2jvs": {
+                  "sentence_preset_id": "2t2jvs",
+                  "sentence_destination": "The full sentence (no words blanked out)",
+                  "sentence_type": "WHOLE"
+              },
+              "f34ojn": {
+                  "sentence_preset_id": "f34ojn",
+                  "sentence_destination": "Cloze (Front)",
+                  "sentence_type": "CLOZE_REPEAT"
+              },
+              "32kjgn": {
+                  "sentence_preset_id": "32kjgn",
+                  "sentence_destination": "Front (Example with word blanked out or missing)",
+                  "sentence_type": "BLANK"
+              },
+              "2kjsgj": {
+                  "sentence_preset_id": "2kjsgj",
+                  "sentence_destination": "Another front field",
+                  "sentence_type": "MISSING"
+              }
+          }
       }
     }
     ```

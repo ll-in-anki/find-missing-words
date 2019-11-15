@@ -6,6 +6,7 @@ Write actions will be triggered here when the user clicks the dialog "Save All" 
 """
 from aqt import mw
 from aqt.qt import *
+from anki.hooks import runHook
 
 from ..forms import config as config_form
 from .search_tab import SearchTab
@@ -33,8 +34,18 @@ class ConfigDialog(QDialog):
         self.search_tab.set_default_note_fields_toggle()
         self.search_tab.save_ignored_words()
         self.note_creation_tab.save_presets()
+        self.cleanup()
         super().accept()
 
     def reject(self):
         self.note_creation_tab.clear_preset_widgets()
+        self.cleanup()
         super().reject()
+
+    @staticmethod
+    def cleanup():
+        runHook("find_missing_words_config.tear_down")
+
+    def closeEvent(self, event):
+        self.cleanup()
+        super().closeEvent(event)

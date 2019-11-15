@@ -1,8 +1,11 @@
 from aqt import mw
 from aqt.qt import *
+from anki.hooks import runHook
 
-from ..utils import list_chooser
+from ..utils import list_chooser, generate_uuid
 from ..forms import config_note_preset as preset_form
+from ..config.properties import SentenceTypes
+from . import sentence_preset
 
 
 class NotePreset(QWidget):
@@ -26,10 +29,15 @@ class NotePreset(QWidget):
         if "sentences_allowed" in self.data:
             self.form.sentence_groupbox.setChecked(self.data["sentences_allowed"])
 
+        if "sentence_presets" not in self.data:
+            self.add_sentence_preset()
+        else:
+            self.render_sentence_destination_presets()
+
         self.render_note_type_chooser()
         self.render_word_destination_chooser()
-        self.render_sentence_destination_chooser()
         self.form.sentence_groupbox.toggled.connect(self.toggle_sentences)
+        self.form.add_sentence_preset_button.clicked.connect(self.add_sentence_preset)
 
     def render_note_type_chooser(self):
         note_types = [model["name"] for model in self.mw.col.models.all()]
@@ -53,20 +61,46 @@ class NotePreset(QWidget):
         if "word_destination" not in self.data:
             self.update_word_destination(choice)
 
-    def render_sentence_destination_chooser(self):
-        fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
-        choice = self.data.get("sentence_destination", fields[1])
-        self.sentence_destination_chooser = list_chooser.ListChooser("Sentence Destination Field", fields,
-                                                                     choice=choice,
-                                                                     callback=self.update_sentence_destination,
-                                                                     parent=self)
-        self.form.sentence_destination_hbox.addWidget(self.sentence_destination_chooser)
-        if "sentence_destination" not in self.data:
-            self.update_sentence_destination(choice)
+    def render_sentence_destination_presets(self):
+        for preset_id in self.data["sentence_presets"]:
+            preset = self.data["sentence_presets"][preset_id]
+            preset_widget = sentence_preset.SentencePreset(self.config,
+                                                           preset,
+                                                           self.note_type,
+                                                           on_update=self.update_sentence_preset,
+                                                           on_delete=self.delete_sentence_preset,
+                                                           parent=self)
+            self.form.sentence_groupbox.layout().addWidget(preset_widget)
 
     def toggle_sentences(self, new_state):
         self.data["sentences_allowed"] = new_state
         self.update_preset()
+
+    def add_sentence_preset(self):
+        if "sentence_presets" not in self.data:
+            self.data["sentence_presets"] = {}
+        preset_id = generate_uuid()
+        preset = {
+            "sentence_preset_id": preset_id,
+            "sentence_type": SentenceTypes.WHOLE.name
+        }
+        self.data["sentence_presets"][preset_id] = preset
+        preset_widget = sentence_preset.SentencePreset(self.config,
+                                                       preset,
+                                                       self.note_type,
+                                                       self.update_sentence_preset,
+                                                       self.delete_sentence_preset,
+                                                       self)
+        self.form.sentence_groupbox.layout().addWidget(preset_widget)
+
+    def update_sentence_preset(self, preset):
+        self.data["sentence_presets"][preset["sentence_preset_id"]] = preset
+        self.update_preset()
+
+    def delete_sentence_preset(self, preset_widget):
+        self.data["sentence_presets"].pop(preset_widget.sentence_preset["sentence_preset_id"])
+        self.form.sentence_groupbox.layout().removeWidget(preset_widget)
+        preset_widget.deleteLater()
 
     def update_preset_name(self):
         self.preset["preset_name"] = self.form.preset_name_input.text()
@@ -81,21 +115,14 @@ class NotePreset(QWidget):
         """
         self.note_type = choice
         self.data["note_type"] = self.note_type
-        self.update_preset()
         fields = [field["name"] for field in mw.col.models.byName(self.note_type)["flds"]]
         self.word_destination_chooser.set_choices(fields)
         self.update_word_destination(self.word_destination_chooser.choice)
-        self.sentence_destination_chooser.set_choices(fields)
-        if len(fields) > 1:
-            self.sentence_destination_chooser.set_choice(self.sentence_destination_chooser.choices[1])
-        self.update_sentence_destination(self.sentence_destination_chooser.choice)
+        runHook("sentence_preset.update_destination_fields", fields)
+        self.update_preset()
 
     def update_word_destination(self, choice):
         self.data["word_destination"] = choice
-        self.update_preset()
-
-    def update_sentence_destination(self, choice):
-        self.data["sentence_destination"] = choice
         self.update_preset()
 
     def update_preset(self):
