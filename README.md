@@ -6,7 +6,7 @@ This is a similar flow to LingQ or ReadLang. But instead of starting your vocab 
 
 ## Demo
 
-[Video demo](https://giant.gfycat.com/BogusLikableHammerkop.webm)
+![Video demo](https://raw.githubusercontent.com/ll-in-anki/find-missing-words/master/demo.gif)
 
 ## Installation
 
