@@ -31,7 +31,6 @@ class NoteCreation(QDialog):
         self.note_fields = note_fields
         self.note_ids = []
         self.current_word = ""
-        self.sentences = None
         self.mw = mw
         self.editor = None
         self.last_list_item = None
@@ -41,9 +40,9 @@ class NoteCreation(QDialog):
         self.form.note_list_widget.itemClicked.connect(self.display_note_editor)
         self.form.ignore_button.clicked.connect(self.ignore_word)
         self.setup_note_widgets()
+        self.render_word_select()
 
         addHook("load_word", self.load_word)
-        self.render_word_select()
 
     def setup_note_widgets(self):
         """

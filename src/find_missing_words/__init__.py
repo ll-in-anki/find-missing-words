@@ -15,9 +15,9 @@ def addon_reloader_after():
 
 
 def initialize_addon():
-    from .gui.options import initialize_menu_item, initialize_config_window
+    from .gui.options import initialize_menu_item, initialize_config_menu_item
     initialize_menu_item()
-    initialize_config_window()
+    initialize_config_menu_item()
 
 
 initialize_addon()

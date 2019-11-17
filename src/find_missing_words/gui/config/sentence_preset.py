@@ -35,7 +35,7 @@ class SentencePreset(QWidget):
                                                                      choice=choice,
                                                                      callback=self.update_sentence_destination,
                                                                      parent=self)
-        self.layout().insertWidget(0, self.sentence_destination_chooser)
+        self.layout().insertWidget(1, self.sentence_destination_chooser)
         if "sentence_destination" not in self.sentence_preset:
             self.update_sentence_destination(choice)
 

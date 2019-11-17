@@ -19,7 +19,7 @@ def invoke_config_window():
     config.exec_()
 
 
-def initialize_config_window():
+def initialize_config_menu_item():
     """
     Add option for addon's config in Anki
     :return:

@@ -55,9 +55,8 @@ class NoteFieldChooser(QPushButton):
 
     def invoke_note_field_tree(self):
         ret = NoteFieldTree(self.note_field_items, self)
-        if ret.selected_items:
-            self.note_field_items = ret.all_items
-            self.update_btn(ret.selected_items)
+        self.note_field_items = ret.all_items
+        self.update_btn(ret.selected_items)
 
     def update_btn(self, selected_items=None):
         """
@@ -73,10 +72,10 @@ class NoteFieldChooser(QPushButton):
             else:
                 self.btn_text = formatted_selected_items
             self.setToolTip(formatted_selected_items)
-            self.selected_items = selected_items
-            if self.on_update_callback:
-                self.on_update_callback()
+        self.selected_items = selected_items
         self.setText(self.btn_text)
+        if self.on_update_callback:
+            self.on_update_callback()
 
     @staticmethod
     def format_btn_text(items):

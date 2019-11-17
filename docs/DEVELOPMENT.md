@@ -40,12 +40,11 @@ UI files are used to speed up visual development and reduce extra code in the bu
     # Could be QDialog or QWidget
     class MyComponent(QDialog):
         def __init__(self, parent=None):
-            super().__init__()
-            self.parent = parent or mw
+            super().__init__(parent)
    
             # Check the compiled UI file's class to call on the next line
             # Could be Ui_Form or Ui_Dialog
-            self.form = my_component_form.Ui_Form()
+            self.form = my_component_form.Ui_Dialog()
             self.form.setupUi(self)
          
         def foo(self):

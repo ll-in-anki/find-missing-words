@@ -78,8 +78,9 @@ class Search(QDialog):
         self.form.filter_note_fields_hbox.addWidget(self.note_field_chooser)
 
     def update_note_fields(self):
-        self.note_field_selected_items = self.note_field_chooser.selected_items
-        self.update_init_search()
+        if hasattr(self, "note_field_chooser"):
+            self.note_field_selected_items = self.note_field_chooser.selected_items
+            self.update_init_search()
 
     def toggle_deck_selection(self):
         self.deck_selection_enabled = not self.deck_selection_enabled
@@ -91,27 +92,16 @@ class Search(QDialog):
         self.note_field_chooser.setEnabled(self.note_field_selection_enabled)
         self.update_init_search()
 
-    ########################
-    #######  Non-UI  #######
-    ########################
-
-    # def copy_preview(self):
-    #     data = self.get_final_search("[Word]")
-    #     command = 'echo ' + data.strip() + '| clip'
-    #     os.system(command)
-
     def update_init_search(self):
         deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
         note_fields = self.note_field_selection_enabled and self.note_field_selected_items
 
+        self.init_query = ""
+        self.init_query += self.search_formatter(True, "deck", deck_name) if deck_name else ""
         if self.note_field_selection_enabled:
             note_type_selected = [mod['name'] for mod in note_fields] if note_fields else ""
             fields_selected = list(
                 {fields['name'] for mod in note_fields for fields in mod['fields']} if note_fields else "")
-
-        self.init_query = ""
-        self.init_query += self.search_formatter(True, "deck", deck_name) if deck_name else ""
-        if self.note_field_selection_enabled:
             self.init_query += self.search_multiple_terms_formatter("note", note_type_selected)
             self.init_query += self.search_multiple_fields_formatter(fields_selected, self.REPLACEMENT_STRING)
         else:
