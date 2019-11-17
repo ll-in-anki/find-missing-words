@@ -122,14 +122,12 @@ class Bubble(QLabel):
     Word bubble
     Highlight green if word not known
     """
-    def __init__(self, text, known, note_ids):
-        super().__init__(text)
-        self.word = text
+    def __init__(self, word, known):
+        super().__init__(word)
+        self.word = word
         self.known = known
-        self.note_ids = note_ids
         self.setContentsMargins(5, 5, 5, 5)
-        if self.word not in utils.punctuation:
-            self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -142,6 +140,17 @@ class Bubble(QLabel):
                 0, 0, self.width() - 1, self.height() - 1, 5, 5)
             self.setStyleSheet("background: lightgreen")
         super().paintEvent(event)
+
+
+class LiveBubble(Bubble):
+    """
+    Word bubble that is functionally active: clickable and runs hooks
+    """
+    def __init__(self, word, known, note_ids):
+        super().__init__(word, known)
+        self.note_ids = note_ids
+        if self.word not in utils.punctuation:
+            self.setCursor(Qt.PointingHandCursor)
 
     def ignore(self):
         self.known = True
@@ -185,7 +194,7 @@ class WordSelect(QScrollArea):
         for token in tokens:
             known = self.word_model[token]["known"]
             note_ids = self.word_model[token]["note_ids"]
-            word_bubble = Bubble(token, known, note_ids)
+            word_bubble = LiveBubble(token, known, note_ids)
             word_bubble.setFixedWidth(word_bubble.sizeHint().width())
             self.words.append(word_bubble)
             self.layout.addWidget(word_bubble)
