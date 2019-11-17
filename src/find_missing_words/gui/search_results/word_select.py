@@ -128,7 +128,8 @@ class Bubble(QLabel):
         self.known = known
         self.note_ids = note_ids
         self.setContentsMargins(5, 5, 5, 5)
-        self.setCursor(Qt.PointingHandCursor)
+        if self.word not in utils.punctuation:
+            self.setCursor(Qt.PointingHandCursor)
 
     def paintEvent(self, event):
         painter = QPainter(self)
