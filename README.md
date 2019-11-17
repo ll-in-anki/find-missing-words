@@ -4,6 +4,10 @@ An Anki add-on for searching through your collection to find gaps in your vocabu
 
 This is a similar flow to LingQ or ReadLang. But instead of starting your vocab from scratch, it uses your existing Anki collection to find which words you don't know.
 
+## Demo
+
+[Video demo](https://raw.githubusercontent.com/ll-in-anki/find-missing-words/master/demo.webm)
+
 ## Installation
 
 See [AnkiWeb](https://ankiweb.net/shared/info/754868802) for quick install instructions.
