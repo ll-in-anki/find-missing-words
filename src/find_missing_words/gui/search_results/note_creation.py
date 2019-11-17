@@ -85,7 +85,7 @@ class NoteCreation(QDialog):
         config = mw.addonManager.getConfig(__name__)
         ignored_word_set = set(config[ConfigProperties.IGNORED_WORDS.value])
         ignored_word_set.add(self.current_word.lower())
-        config[ConfigProperties.IGNORED_WORDS.value] = sorted(list(ignored_word_set))
+        config[ConfigProperties.IGNORED_WORDS.value] = list(ignored_word_set)
         mw.addonManager.writeConfig(__name__, config)
         self.word_select.ignore_word(self.current_word)
         self.toggle_note_creation_widgets_visibility(False)

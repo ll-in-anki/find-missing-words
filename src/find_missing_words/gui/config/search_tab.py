@@ -23,6 +23,7 @@ class SearchTab(QWidget):
         self.render_default_deck_chooser()
         self.render_default_note_field_chooser()
         self.populate_ignored_words()
+        self.form.ignored_words_text_area.textChanged.connect(self.text_change)
 
     def load_config(self):
         self.filter_deck = self.config[ConfigProperties.FILTER_DECK.value]
@@ -77,11 +78,26 @@ class SearchTab(QWidget):
         mw.addonManager.writeConfig(__name__, self.config)
 
     def populate_ignored_words(self):
-        ignored_words_text = ", ".join(self.ignored_words)
-        self.form.ignored_words_text_area.setText(ignored_words_text)
+        if self.ignored_words:
+            ignored_words_text = "\n".join(sorted(self.ignored_words))
+            self.form.ignored_words_text_area.setText(ignored_words_text)
+        else:
+            self.set_text_area_placeholder()
+
+    def set_text_area_placeholder(self):
+        self.form.ignored_words_text_area.setPlaceholderText("I\nme\nthe\nyou")
+
+    def text_change(self):
+        current_text = self.form.ignored_words_text_area.toPlainText()
+        if not current_text:
+            self.set_text_area_placeholder()
 
     def save_ignored_words(self):
-        text_area_words = set([word.strip().lower() for word in self.form.ignored_words_text_area.toPlainText().split(",")])
-        ignored_words = sorted(list(text_area_words))
+        text = self.form.ignored_words_text_area.toPlainText()
+        if not text:
+            ignored_words = []
+        else:
+            text_area_words = set([word.strip().lower() for word in text.split("\n")])
+            ignored_words = list(text_area_words)
         self.config.update({ConfigProperties.IGNORED_WORDS.value: ignored_words})
         mw.addonManager.writeConfig(__name__, self.config)

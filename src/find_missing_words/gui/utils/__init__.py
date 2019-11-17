@@ -1,6 +1,10 @@
-import uuid
-
 from . import *
+
+import uuid
+import string
+
+punctuation = string.punctuation.replace("'", "")
+token_regex = rf"[\w']+|[{punctuation}]"
 
 
 def clear_layout(layout):

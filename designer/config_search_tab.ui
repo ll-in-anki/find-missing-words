@@ -88,7 +88,7 @@
       <string notr="true">font-size: 11px</string>
      </property>
      <property name="text">
-      <string>Words you know, but don't need cards for (separated by comma)</string>
+      <string>Words you know, but don't need cards for (separated by line)</string>
      </property>
     </widget>
    </item>
@@ -99,9 +99,6 @@
      </property>
      <property name="acceptRichText">
       <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>I, me, the, you</string>
      </property>
     </widget>
    </item>

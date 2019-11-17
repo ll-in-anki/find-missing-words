@@ -3,7 +3,7 @@ Module for the word select pane displayed on the left side of the search results
 Displays the text from the search window and highlights the words not found in the search query.
 """
 
-import string
+import re
 
 from aqt.qt import *
 from anki.hooks import runHook
@@ -146,11 +146,14 @@ class Bubble(QLabel):
         self.known = True
 
     def strip_word(self):
-        self.word = self.word.translate(str.maketrans('', '', string.punctuation.replace('\'', '')))
+        return self.word.translate(str.maketrans('', '', utils.punctuation))
 
-    def mousePressEvent(self, ev: QMouseEvent) -> None:
-        self.strip_word()
-        runHook("load_word", self.word, self.note_ids, self.known)
+    def mousePressEvent(self, event):
+        if self.word in utils.punctuation:
+            return
+        word = self.strip_word().lower()
+        runHook("load_word", word, self.note_ids, self.known)
+        super().mousePressEvent(event)
 
 
 class WordSelect(QScrollArea):
@@ -177,10 +180,11 @@ class WordSelect(QScrollArea):
 
     def draw(self):
         self.words = []
-        for word in self.text.split():
-            known = self.word_model[word]["known"]
-            note_ids = self.word_model[word]["note_ids"]
-            word_bubble = Bubble(word, known, note_ids)
+        tokens = re.findall(utils.token_regex, self.text)
+        for token in tokens:
+            known = self.word_model[token]["known"]
+            note_ids = self.word_model[token]["note_ids"]
+            word_bubble = Bubble(token, known, note_ids)
             word_bubble.setFixedWidth(word_bubble.sizeHint().width())
             self.words.append(word_bubble)
             self.layout.addWidget(word_bubble)

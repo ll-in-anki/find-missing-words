@@ -4,6 +4,8 @@ First view of the addon: search
 Enter search queries and filter by decks, note types, and fields
 """
 
+import re
+
 from aqt import mw, deckchooser
 from aqt.qt import *
 from anki.hooks import addHook, remHook
@@ -12,6 +14,7 @@ from .forms import search as search_form
 from .utils import note_field_chooser
 from .search_results import note_creation
 from .config.properties import ConfigProperties
+from . import utils
 
 
 class Search(QDialog):
@@ -124,19 +127,7 @@ class Search(QDialog):
         self.update_init_search()
 
         text = self.form.text_area.toPlainText()
-        word_model = {}
-
-        for word in text.split():
-            query = self.get_final_search(word)
-
-            found_note_ids = mw.col.findNotes(query)
-            config = mw.addonManager.getConfig(__name__)
-            ignored_words = config[ConfigProperties.IGNORED_WORDS.value]
-            known = len(found_note_ids) > 0 or word.lower() in [ignored_word.lower() for ignored_word in ignored_words]
-            word_model[word] = {
-                "note_ids": found_note_ids,
-                "known": known
-            }
+        word_model = self.build_word_model(text)
 
         deck_name = self.deck_selection_enabled and (self.deck_name or self.deck_chooser.deckName())
         note_fields = self.note_field_selection_enabled and self.note_field_selected_items
@@ -148,6 +139,21 @@ class Search(QDialog):
         else:
             self.note_creation_window.word_select.set_word_model(word_model)
             self.note_creation_window.word_select.reset()
+
+    def build_word_model(self, text):
+        word_model = {}
+        tokens = re.findall(utils.token_regex, text)
+        for token in tokens:
+            query = self.get_final_search(token)
+            found_note_ids = mw.col.findNotes(query)
+            config = mw.addonManager.getConfig(__name__)
+            ignored_words = config[ConfigProperties.IGNORED_WORDS.value]
+            known = len(found_note_ids) > 0 or token.lower() in [ignored_word.lower() for ignored_word in ignored_words]
+            word_model[token] = {
+                "note_ids": found_note_ids,
+                "known": known
+            }
+        return word_model
 
     @staticmethod
     def search_formatter(encapsulated, field, term, with_space=True):
