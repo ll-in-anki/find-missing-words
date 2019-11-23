@@ -12,6 +12,7 @@ def clear_layout(layout):
         widget = layout.itemAt(i).widget()
         layout.removeWidget(widget)
         widget.deleteLater()
+        widget = None
 
 
 def clear_stacked_widget(stacked_widget):
@@ -20,6 +21,7 @@ def clear_stacked_widget(stacked_widget):
         if widget:
             stacked_widget.removeWidget(widget)
             widget.deleteLater()
+            widget = None
 
 
 def print_object_tree(obj, indent=0):
