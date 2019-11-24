@@ -4,8 +4,6 @@ First view of the addon: search
 Enter search queries and filter by decks, note types, and fields
 """
 
-import re
-
 from aqt import mw, deckchooser
 from aqt.qt import *
 from anki.hooks import addHook, remHook
@@ -128,17 +126,20 @@ class Search(QDialog):
             note_creation_window.show()
         else:
             self.note_creation_window.word_select.set_word_model(word_model)
-            self.note_creation_window.word_select.reset()
+            self.note_creation_window.word_select.build()
 
     def build_word_model(self, text):
         word_model = {}
-        tokens = re.findall(utils.token_regex, text)
+        tokens = utils.split_words(text)
         for token in tokens:
+            if not utils.is_word(token):
+                continue
             query = self.get_final_search(token)
             found_note_ids = mw.col.findNotes(query)
             config = mw.addonManager.getConfig(__name__)
             ignored_words = config[ConfigProperties.IGNORED_WORDS.value]
-            known = len(found_note_ids) > 0 or token.lower() in [ignored_word.lower() for ignored_word in ignored_words]
+            is_word = utils.is_word(token)
+            known = len(found_note_ids) > 0 or token.lower() in [ignored_word.lower() for ignored_word in ignored_words] or not is_word
             word_model[token] = {
                 "note_ids": found_note_ids,
                 "known": known

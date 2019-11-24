@@ -73,17 +73,6 @@ class NoteCreation(QDialog):
         """
         self.word_select = word_select_widget = word_select.WordSelect(self.text, self.word_model, parent=self)
         self.form.word_select_pane_vbox.addWidget(word_select_widget)
-        self.render_word_select_key()
-
-    def render_word_select_key(self):
-        known_word_bubble_1 = word_select.Bubble("Known", True)
-        known_word_bubble_2 = word_select.Bubble("Words", True)
-        self.form.key_known_words_hbox.addWidget(known_word_bubble_1)
-        self.form.key_known_words_hbox.addWidget(known_word_bubble_2)
-        new_word_bubble_1 = word_select.Bubble("New", False)
-        new_word_bubble_2 = word_select.Bubble("Words", False)
-        self.form.key_new_words_hbox.addWidget(new_word_bubble_1)
-        self.form.key_new_words_hbox.addWidget(new_word_bubble_2)
 
     def load_word(self, word, note_ids, known):
         self.reset_list()
