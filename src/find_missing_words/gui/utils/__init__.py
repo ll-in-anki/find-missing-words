@@ -7,6 +7,9 @@ token_regex = r"(\b[^\s]+\b)"
 
 
 def split_words(text):
+    """
+    Split words in a text by word boundary (see above regex pattern)
+    """
     return re.split(token_regex, text)
 
 

@@ -10,6 +10,11 @@ from .. import utils
 
 
 class WordSelect(QTextBrowser):
+    """
+    Text browser that accepts a string and a word model that defines what should be highlighted.
+    Highlighting done via CSS.
+    """
+    
     STYLE = """
     body {
         line-height: 1.5;
@@ -36,6 +41,14 @@ class WordSelect(QTextBrowser):
         self.setText(self.html)
 
     def build_html(self):
+        """
+        Build the html which includes the stylesheet and the text.
+        Use anchor <a> tags for new words.
+        Use classname for CSS targeting/coloring and use href attr. for word string.
+        On <a> link click, look at link's href to determine word clicked on.
+        Somewhat of a hack, but also very simple.
+        """
+        
         html = "<html><head><style type='text/css'>" + WordSelect.STYLE + "</style></head><body>"
         tokens = utils.split_words(self.text)
         for token in tokens:
@@ -55,12 +68,20 @@ class WordSelect(QTextBrowser):
         self.word_model = word_model
 
     def intercept_click(self, link):
+        """
+        Listen for anchor <a> tag click, get word by looking at the href value.
+        """
+
         word = link.toString()
         note_ids = self.word_model[word]["note_ids"]
         known = self.word_model[word]["known"]
         runHook("load_word", word, note_ids, known)
 
     def ignore_word(self, word):
+        """
+        Ignore word by changing the data model and re-rendering the html.
+        """
+
         for token in self.word_model:
             if token.lower() == word.lower():
                 self.word_model[token]["known"] = True

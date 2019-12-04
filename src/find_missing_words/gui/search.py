@@ -129,6 +129,11 @@ class Search(QDialog):
             self.note_creation_window.word_select.build()
 
     def build_word_model(self, text):
+        """
+        Create map of words to the note ids that contain the word and filter out known words
+        @param text: input text to tokenize and search on
+        """
+        
         word_model = {}
         tokens = utils.split_words(text)
         for token in tokens:
@@ -138,8 +143,7 @@ class Search(QDialog):
             found_note_ids = mw.col.findNotes(query)
             config = mw.addonManager.getConfig(__name__)
             ignored_words = config[ConfigProperties.IGNORED_WORDS.value]
-            is_word = utils.is_word(token)
-            known = len(found_note_ids) > 0 or token.lower() in [ignored_word.lower() for ignored_word in ignored_words] or not is_word
+            known = len(found_note_ids) > 0 or token.lower() in [ignored_word.lower() for ignored_word in ignored_words]
             word_model[token] = {
                 "note_ids": found_note_ids,
                 "known": known
