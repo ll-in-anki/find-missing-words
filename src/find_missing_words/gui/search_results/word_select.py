@@ -19,7 +19,7 @@ class WordSelect(QTextBrowser):
     
     STYLE = """
     body {
-        font-size: 13px;
+        font-size: 11pt;
         line-height: 1.5;
     }
     a {
