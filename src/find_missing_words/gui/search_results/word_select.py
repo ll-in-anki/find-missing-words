@@ -3,6 +3,8 @@ Module for the word select pane displayed on the left side of the search results
 Displays the text from the search window and highlights the words not found in the search query.
 """
 
+import re
+
 from aqt.qt import *
 from anki.hooks import runHook
 
@@ -17,6 +19,7 @@ class WordSelect(QTextBrowser):
     
     STYLE = """
     body {
+        font-size: 13px;
         line-height: 1.5;
     }
     a {
@@ -54,13 +57,15 @@ class WordSelect(QTextBrowser):
         for token in tokens:
             if not utils.is_word(token):
                 # Not a word, don't allow clicking
+                # Render double spacing correctly in HTML
+                token = re.sub(r"\n{2,}", "<br><br>", token)
                 html += token
                 continue
             known = self.word_model[token]["known"]
             if known:
                 html += f"<a href='{token}'>{token}</a>"
             else:
-                html += f"<a class='unknown' href='{token}'>{token}</a>"
+                html += f"<a class='unknown' href='{token}'>&nbsp;{token}&nbsp;</a>"
         html += "</body></html>"
         return html
 

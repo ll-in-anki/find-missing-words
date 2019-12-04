@@ -131,7 +131,7 @@ class Search(QDialog):
     def build_word_model(self, text):
         """
         Create map of words to the note ids that contain the word and filter out known words
-        @param text: input text to tokenize and search on
+        :param text: input text to tokenize and search on
         """
         
         word_model = {}

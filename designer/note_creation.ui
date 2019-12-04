@@ -61,7 +61,7 @@
                <string notr="true">background-color: lightgreen</string>
               </property>
               <property name="text">
-               <string>New</string>
+               <string> New </string>
               </property>
              </widget>
             </item>
@@ -77,7 +77,7 @@
                <string notr="true">background-color: lightgreen</string>
               </property>
               <property name="text">
-               <string>Words</string>
+               <string> Words </string>
               </property>
              </widget>
             </item>
