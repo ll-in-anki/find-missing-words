@@ -30,7 +30,6 @@ class AddNoteWidget(QWidget):
         self.history = []
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onModelChange)
-        addCloseShortcut(self)
         self.show()
 
     def setupEditor(self):

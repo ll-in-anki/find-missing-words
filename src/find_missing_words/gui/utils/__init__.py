@@ -1,10 +1,20 @@
 from . import *
 
 import uuid
-import string
+import re
 
-punctuation = string.punctuation.replace("'", "")
-token_regex = rf"[\w']+|[{punctuation}]"
+token_regex = r"(\b[^\s]+\b)"
+
+
+def split_words(text):
+    """
+    Split words in a text by word boundary (see above regex pattern)
+    """
+    return re.split(token_regex, text)
+
+
+def is_word(text):
+    return re.match(token_regex, text)
 
 
 def clear_layout(layout):

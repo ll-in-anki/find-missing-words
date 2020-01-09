@@ -11,197 +11,83 @@ from anki.hooks import runHook
 from .. import utils
 
 
-class FlowLayout(QLayout):
+class WordSelect(QTextBrowser):
     """
-    Responsive layout for the words
+    Text browser that accepts a string and a word model that defines what should be highlighted.
+    Highlighting done via CSS.
     """
-    def __init__(self, parent=None, margin=-1, hspacing=-1, vspacing=-1):
-        super().__init__(parent)
-        self._hspacing = hspacing
-        self._vspacing = vspacing
-        self._items = []
-        self.setContentsMargins(margin, margin, margin, margin)
-
-    def clear(self):
-        utils.clear_layout(self)
-
-    def __del__(self):
-        del self._items[:]
-
-    def addItem(self, item):
-        self._items.append(item)
-
-    def horizontalSpacing(self):
-        if self._hspacing >= 0:
-            return self._hspacing
-        return self.smartSpacing(
-            QStyle.PM_LayoutHorizontalSpacing)
-
-    def verticalSpacing(self):
-        if self._vspacing >= 0:
-            return self._vspacing
-        return self.smartSpacing(
-            QStyle.PM_LayoutVerticalSpacing)
-
-    def count(self):
-        return len(self._items)
-
-    def itemAt(self, index):
-        if 0 <= index < len(self._items):
-            return self._items[index]
-
-    def takeAt(self, index):
-        if 0 <= index < len(self._items):
-            return self._items.pop(index)
-
-    def expandingDirections(self):
-        return Qt.Orientations(0)
-
-    def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        return self.doLayout(QRect(0, 0, width, 0), True)
-
-    def setGeometry(self, rect):
-        super().setGeometry(rect)
-        self.doLayout(rect, False)
-
-    def sizeHint(self):
-        return self.minimumSize()
-
-    def minimumSize(self):
-        size = QSize()
-        for item in self._items:
-            size = size.expandedTo(item.minimumSize())
-        left, top, right, bottom = self.getContentsMargins()
-        size += QSize(left + right, top + bottom)
-        return size
-
-    def doLayout(self, rect, testonly):
-        left, top, right, bottom = self.getContentsMargins()
-        effective = rect.adjusted(+left, +top, -right, -bottom)
-        x = effective.x()
-        y = effective.y()
-        lineheight = 0
-        for item in self._items:
-            widget = item.widget()
-            hspace = self.horizontalSpacing()
-            if hspace == -1:
-                hspace = widget.style().layoutSpacing(
-                    QSizePolicy.PushButton,
-                    QSizePolicy.PushButton, Qt.Horizontal)
-            vspace = self.verticalSpacing()
-            if vspace == -1:
-                vspace = widget.style().layoutSpacing(
-                    QSizePolicy.PushButton,
-                    QSizePolicy.PushButton, Qt.Vertical)
-            nextX = x + item.sizeHint().width() + hspace
-            if nextX - hspace > effective.right() and lineheight > 0:
-                x = effective.x()
-                y = y + lineheight + vspace
-                nextX = x + item.sizeHint().width() + hspace
-                lineheight = 0
-            if not testonly:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
-            x = nextX
-            lineheight = max(lineheight, item.sizeHint().height())
-        return y + lineheight - rect.y() + bottom
-
-    def smartSpacing(self, pm):
-        parent = self.parent()
-        if parent is None:
-            return -1
-        if parent.isWidgetType():
-            return parent.style().pixelMetric(pm, None, parent)
-        return parent.spacing()
-
-
-class Bubble(QLabel):
+    
+    STYLE = """
+    body {
+        font-size: 11pt;
+        line-height: 1.5;
+    }
+    a {
+        color: black;
+        text-decoration: none !important;
+    }
+    .unknown {
+        background: lightgreen;
+    }
     """
-    Word bubble
-    Highlight green if word not known
-    """
-    def __init__(self, word, known):
-        super().__init__(word)
-        self.word = word
-        self.known = known
-        self.setContentsMargins(5, 5, 5, 5)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        rect = event.rect()
-        painter.eraseRect(rect)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        self.setStyleSheet("")
-        if not self.known:
-            painter.drawRoundedRect(
-                0, 0, self.width() - 1, self.height() - 1, 5, 5)
-            self.setStyleSheet("background: lightgreen")
-        super().paintEvent(event)
-
-
-class LiveBubble(Bubble):
-    """
-    Word bubble that is functionally active: clickable and runs hooks
-    """
-    def __init__(self, word, known, note_ids):
-        super().__init__(word, known)
-        self.note_ids = note_ids
-        if self.word not in utils.punctuation:
-            self.setCursor(Qt.PointingHandCursor)
-
-    def ignore(self):
-        self.known = True
-
-    def strip_word(self):
-        return self.word.translate(str.maketrans('', '', utils.punctuation))
-
-    def mousePressEvent(self, event):
-        if self.word in utils.punctuation:
-            return
-        word = self.strip_word().lower()
-        runHook("load_word", word, self.note_ids, self.known)
-        super().mousePressEvent(event)
-
-
-class WordSelect(QScrollArea):
     def __init__(self, text, word_model, parent=None):
         super().__init__(parent)
         self.text = text
         self.word_model = word_model
+        self.build()
+        self.setOpenLinks(False)
+        self.anchorClicked.connect(self.intercept_click)
 
-        widget = QWidget(self)
-        widget.setAutoFillBackground(True)
-        self.setWidgetResizable(True)
-        self.setWidget(widget)
+    def build(self):
+        self.html = self.build_html()
+        self.setText(self.html)
 
-        widget.setMinimumWidth(50)
-        self.layout = FlowLayout(widget)
-        self.draw()
+    def build_html(self):
+        """
+        Build the html which includes the stylesheet and the text.
+        Use anchor <a> tags for new words.
+        Use classname for CSS targeting/coloring and use href attr. for word string.
+        On <a> link click, look at link's href to determine word clicked on.
+        Somewhat of a hack, but also very simple.
+        """
+        
+        html = "<html><head><style type='text/css'>" + WordSelect.STYLE + "</style></head><body>"
+        tokens = utils.split_words(self.text)
+        for token in tokens:
+            if not utils.is_word(token):
+                # Not a word, don't allow clicking
+                # Render double spacing correctly in HTML
+                token = re.sub(r"\n{2,}", "<br><br>", token)
+                html += token
+                continue
+            known = self.word_model[token]["known"]
+            if known:
+                html += f"<a href='{token}'>{token}</a>"
+            else:
+                html += f"<a class='unknown' href='{token}'>&nbsp;{token}&nbsp;</a>"
+        html += "</body></html>"
+        return html
 
     def set_word_model(self, word_model):
         self.word_model = word_model
 
-    def reset(self):
-        self.layout.clear()
-        self.draw()
+    def intercept_click(self, link):
+        """
+        Listen for anchor <a> tag click, get word by looking at the href value.
+        """
 
-    def draw(self):
-        self.words = []
-        tokens = re.findall(utils.token_regex, self.text)
-        for token in tokens:
-            known = self.word_model[token]["known"]
-            note_ids = self.word_model[token]["note_ids"]
-            word_bubble = LiveBubble(token, known, note_ids)
-            word_bubble.setFixedWidth(word_bubble.sizeHint().width())
-            self.words.append(word_bubble)
-            self.layout.addWidget(word_bubble)
+        word = link.toString()
+        note_ids = self.word_model[word]["note_ids"]
+        known = self.word_model[word]["known"]
+        runHook("load_word", word, note_ids, known)
 
     def ignore_word(self, word):
-        for i in range(self.layout.count()):
-            word_bubble = self.layout.itemAt(i).widget()
-            if word.lower() == word_bubble.text().lower():
-                word_bubble.ignore()
-                word_bubble.update()
+        """
+        Ignore word by changing the data model and re-rendering the html.
+        """
+
+        for token in self.word_model:
+            if token.lower() == word.lower():
+                self.word_model[token]["known"] = True
+        self.build()
